@@ -1,49 +1,54 @@
-import { AUTH_REQUEST, AUTH_SUCCESS, AUTH_FAILURE, LOGOUT, CHECK_AUTH_STATUS } from "../types"
+import {
+  LOGIN_REQUEST,
+  LOGIN_SUCCESS,
+  LOGIN_FAILURE,
+  LOGOUT,
+  CHECK_AUTH_STATUS,
+  AUTH_CHECK_START,
+  AUTH_CHECK_SUCCESS,
+  AUTH_CHECK_FAILURE,
+} from "../types"
 
 const initialState = {
-  token: localStorage.getItem("token"),
-  isAuthenticated: null,
+  isAuthenticated: false,
   user: null,
-  loading: true,
+  token: null,
+  loading: false,
   error: null,
 }
 
 const authReducer = (state = initialState, action) => {
   switch (action.type) {
-    case AUTH_REQUEST:
+    case LOGIN_REQUEST:
+    case AUTH_CHECK_START:
       return {
         ...state,
         loading: true,
         error: null,
       }
-    case AUTH_SUCCESS:
-      localStorage.setItem("token", action.payload.token)
+    case LOGIN_SUCCESS:
+    case AUTH_CHECK_SUCCESS:
       return {
         ...state,
-        token: action.payload.token,
         isAuthenticated: true,
         user: action.payload.user,
+        token: action.payload.token,
         loading: false,
         error: null,
       }
-    case AUTH_FAILURE:
-      localStorage.removeItem("token")
+    case LOGIN_FAILURE:
+    case AUTH_CHECK_FAILURE:
       return {
         ...state,
-        token: null,
         isAuthenticated: false,
         user: null,
+        token: null,
         loading: false,
-        error: action.payload,
+        error: action.payload?.error || "Authentication failed",
       }
     case LOGOUT:
-      localStorage.removeItem("token")
       return {
-        ...state,
-        token: null,
-        isAuthenticated: false,
-        user: null,
-        loading: false,
+        ...initialState,
       }
     case CHECK_AUTH_STATUS:
       return {

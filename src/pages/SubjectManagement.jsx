@@ -1,10 +1,11 @@
+"use client"
+
 import { useState, useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { Row, Col, Card, Table, Button, Form, Modal, Alert, Badge, InputGroup } from "react-bootstrap"
 import {
   PeopleFill,
   Search,
-  PlusLg,
   Pencil,
   Trash,
   Eye,
@@ -12,7 +13,6 @@ import {
   XCircle,
   GeoAlt,
   Telephone,
-  Envelope,
   Building,
 } from "react-bootstrap-icons"
 import MainLayout from "../components/common/MainLayout"
@@ -262,25 +262,13 @@ const SubjectManagement = () => {
               <Col md={6}>
                 <Form.Group controlId="name">
                   <Form.Label>Nom de l'entreprise</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    required
-                  />
+                  <Form.Control type="text" name="name" value={formData.name} onChange={handleInputChange} required />
                 </Form.Group>
               </Col>
               <Col md={6}>
                 <Form.Group controlId="taxId">
                   <Form.Label>ID Fiscal</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="taxId"
-                    value={formData.taxId}
-                    onChange={handleInputChange}
-                    required
-                  />
+                  <Form.Control type="text" name="taxId" value={formData.taxId} onChange={handleInputChange} required />
                 </Form.Group>
               </Col>
               <Col md={6}>
@@ -381,25 +369,13 @@ const SubjectManagement = () => {
               <Col md={6}>
                 <Form.Group controlId="editName">
                   <Form.Label>Nom de l'entreprise</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    required
-                  />
+                  <Form.Control type="text" name="name" value={formData.name} onChange={handleInputChange} required />
                 </Form.Group>
               </Col>
               <Col md={6}>
                 <Form.Group controlId="editTaxId">
                   <Form.Label>ID Fiscal</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="taxId"
-                    value={formData.taxId}
-                    onChange={handleInputChange}
-                    required
-                  />
+                  <Form.Control type="text" name="taxId" value={formData.taxId} onChange={handleInputChange} required />
                 </Form.Group>
               </Col>
               <Col md={6}>

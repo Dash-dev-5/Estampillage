@@ -1,16 +1,16 @@
+"use client"
+
 import { useState, useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { Row, Col, Card, Table, Button, Form, Modal, Alert, Badge, InputGroup } from "react-bootstrap"
 import {
   PersonBadge,
   Search,
-  PlusLg,
   Pencil,
   Trash,
   Eye,
   CheckCircle,
   XCircle,
-  GeoAlt,
   Telephone,
   Envelope,
 } from "react-bootstrap-icons"
@@ -259,25 +259,13 @@ const OPGManagement = () => {
               <Col md={6}>
                 <Form.Group controlId="name">
                   <Form.Label>Nom</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    required
-                  />
+                  <Form.Control type="text" name="name" value={formData.name} onChange={handleInputChange} required />
                 </Form.Group>
               </Col>
               <Col md={6}>
                 <Form.Group controlId="code">
                   <Form.Label>Code</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="code"
-                    value={formData.code}
-                    onChange={handleInputChange}
-                    required
-                  />
+                  <Form.Control type="text" name="code" value={formData.code} onChange={handleInputChange} required />
                 </Form.Group>
               </Col>
               <Col md={12}>
@@ -361,25 +349,13 @@ const OPGManagement = () => {
               <Col md={6}>
                 <Form.Group controlId="editName">
                   <Form.Label>Nom</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    required
-                  />
+                  <Form.Control type="text" name="name" value={formData.name} onChange={handleInputChange} required />
                 </Form.Group>
               </Col>
               <Col md={6}>
                 <Form.Group controlId="editCode">
                   <Form.Label>Code</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="code"
-                    value={formData.code}
-                    onChange={handleInputChange}
-                    required
-                  />
+                  <Form.Control type="text" name="code" value={formData.code} onChange={handleInputChange} required />
                 </Form.Group>
               </Col>
               <Col md={12}>

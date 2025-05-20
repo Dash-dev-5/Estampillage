@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { Row, Col, Card, Table, Form, InputGroup, Badge, Button, Modal, Alert } from "react-bootstrap"
@@ -64,8 +66,7 @@ const Archives = () => {
       archive.reason.toLowerCase().includes(filter.toLowerCase())
     const matchesType = !typeFilter || archive.documentType === typeFilter
     const matchesDate =
-      !dateFilter ||
-      new Date(archive.archivedAt).toLocaleDateString() === new Date(dateFilter).toLocaleDateString()
+      !dateFilter || new Date(archive.archivedAt).toLocaleDateString() === new Date(dateFilter).toLocaleDateString()
 
     return matchesText && matchesType && matchesDate
   })
@@ -114,8 +115,8 @@ const Archives = () => {
                         {type === "Declaration"
                           ? "Déclaration"
                           : type === "PerceptionNote"
-                          ? "Note de Perception"
-                          : type}
+                            ? "Note de Perception"
+                            : type}
                       </option>
                     ))}
                   </Form.Select>
@@ -126,11 +127,7 @@ const Archives = () => {
                   <InputGroup.Text>
                     <Calendar />
                   </InputGroup.Text>
-                  <Form.Control
-                    type="date"
-                    value={dateFilter}
-                    onChange={(e) => setDateFilter(e.target.value)}
-                  />
+                  <Form.Control type="date" value={dateFilter} onChange={(e) => setDateFilter(e.target.value)} />
                 </InputGroup>
               </Col>
               <Col md={2} className="text-end">
@@ -229,9 +226,7 @@ const Archives = () => {
               <p>
                 Êtes-vous sûr de vouloir restaurer le document <strong>{selectedArchive.name}</strong> des archives ?
               </p>
-              <Alert variant="info">
-                Le document sera retiré des archives et remis dans sa section d'origine.
-              </Alert>
+              <Alert variant="info">Le document sera retiré des archives et remis dans sa section d'origine.</Alert>
             </>
           )}
         </Modal.Body>
@@ -297,10 +292,13 @@ const Archives = () => {
             Fermer
           </Button>
           {selectedArchive && (
-            <Button variant="warning" onClick={() => {
-              setShowViewModal(false)
-              handleRestoreModalOpen(selectedArchive)
-            }}>
+            <Button
+              variant="warning"
+              onClick={() => {
+                setShowViewModal(false)
+                handleRestoreModalOpen(selectedArchive)
+              }}
+            >
               <ArrowCounterclockwise className="me-2" /> Restaurer
             </Button>
           )}

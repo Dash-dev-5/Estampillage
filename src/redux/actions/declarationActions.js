@@ -67,7 +67,7 @@ export const fetchDeclarations = () => async (dispatch, getState) => {
   try {
     // Simulate API call
     /*
-    const response = await fetch(`${import.meta.env.REACT_APP_DECLARATION_API_URL}`, {
+    const response = await fetch(`${process.env.REACT_APP_DECLARATION_API_URL}`, {
       headers: {
         'Authorization': `Bearer ${getState().auth.token}`
       }
@@ -109,7 +109,7 @@ export const createDeclaration = (declarationData) => async (dispatch, getState)
   try {
     // Simulate API call
     /*
-    const response = await fetch(`${import.meta.env.REACT_APP_DECLARATION_API_URL}`, {
+    const response = await fetch(`${process.env.REACT_APP_DECLARATION_API_URL}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -204,7 +204,7 @@ export const updateDeclaration = (id, declarationData) => async (dispatch, getSt
   try {
     // Simulate API call
     /*
-    const response = await fetch(`${import.meta.env.REACT_APP_DECLARATION_API_URL}/${id}`, {
+    const response = await fetch(`${process.env.REACT_APP_DECLARATION_API_URL}/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -287,7 +287,7 @@ export const deleteDeclaration = (id) => async (dispatch, getState) => {
   try {
     // Simulate API call
     /*
-    const response = await fetch(`${import.meta.env.REACT_APP_DECLARATION_API_URL}/${id}`, {
+    const response = await fetch(`${process.env.REACT_APP_DECLARATION_API_URL}/${id}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${getState().auth.token}`

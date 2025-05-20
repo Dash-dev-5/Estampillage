@@ -17,6 +17,7 @@ import {
   Clock,
   FileEarmarkPdf,
   Download,
+  Plus,
 } from "react-bootstrap-icons"
 import MainLayout from "../components/common/MainLayout"
 import PageTitle from "../components/common/PageTitle"
@@ -28,9 +29,12 @@ import {
 } from "../redux/actions/declarationActions"
 import { jsPDF } from "jspdf"
 import "jspdf-autotable"
+import { canCreateDeclaration } from "../utils/permissions"
+import { useNavigate } from "react-router-dom"
 
 const Declaration = () => {
   const dispatch = useDispatch()
+  const navigate = useNavigate()
   const { declarations, loading, error } = useSelector((state) => state.declaration)
   const { user } = useSelector((state) => state.auth)
 
@@ -56,6 +60,13 @@ const Declaration = () => {
   // Filter state
   const [filter, setFilter] = useState("")
   const [statusFilter, setStatusFilter] = useState("")
+
+  // Check permissions
+  useEffect(() => {
+    if (!canCreateDeclaration(user)) {
+      navigate("/dashboard")
+    }
+  }, [user, navigate])
 
   // Calculate amount due on change
   useEffect(() => {
@@ -138,24 +149,28 @@ const Declaration = () => {
     switch (status) {
       case "pending":
         return (
-          <Badge bg="warning">
+          <Badge bg="warning" className="mac-badge">
             <Clock className="me-1" /> En attente
           </Badge>
         )
       case "approved":
         return (
-          <Badge bg="success">
+          <Badge bg="success" className="mac-badge">
             <Check2Circle className="me-1" /> Approuvé
           </Badge>
         )
       case "rejected":
         return (
-          <Badge bg="danger">
+          <Badge bg="danger" className="mac-badge">
             <XCircle className="me-1" /> Rejeté
           </Badge>
         )
       default:
-        return <Badge bg="secondary">Inconnu</Badge>
+        return (
+          <Badge bg="secondary" className="mac-badge">
+            Inconnu
+          </Badge>
+        )
     }
   }
 
@@ -195,7 +210,7 @@ const Declaration = () => {
 
     // Add footer
     doc.setFontSize(10)
-    doc.text(import.meta.env.REACT_APP_NAME || "ESTAMPILLAGE", 105, 280, { align: "center" })
+    doc.text(import.meta.env.VITE_APP_NAME || "ESTAMPILLAGE", 105, 280, { align: "center" })
 
     // Save the PDF
     doc.save("declaration-" + declaration.id + ".pdf")
@@ -214,17 +229,17 @@ const Declaration = () => {
         />
 
         {error && (
-          <Alert variant="danger" className="animate__animated animate__fadeIn">
+          <Alert variant="danger" className="animate__animated animate__fadeIn glass-alert">
             {error}
           </Alert>
         )}
 
-        <Card className="shadow-sm border-0 mb-4">
+        <Card className="shadow-sm border-0 mb-4 glass-card scale-in">
           <Card.Body>
             <Row className="g-3 align-items-center">
               <Col md={6} lg={4}>
                 <InputGroup>
-                  <InputGroup.Text>
+                  <InputGroup.Text className="bg-transparent border-end-0">
                     <Search />
                   </InputGroup.Text>
                   <Form.Control
@@ -232,15 +247,20 @@ const Declaration = () => {
                     placeholder="Rechercher par ID ou nom d'assujetti..."
                     value={filter}
                     onChange={(e) => setFilter(e.target.value)}
+                    className="glass-input border-start-0"
                   />
                 </InputGroup>
               </Col>
               <Col md={6} lg={3}>
                 <InputGroup>
-                  <InputGroup.Text>
+                  <InputGroup.Text className="bg-transparent border-end-0">
                     <Filter />
                   </InputGroup.Text>
-                  <Form.Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+                  <Form.Select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="glass-input border-start-0"
+                  >
                     <option value="">Tous les statuts</option>
                     <option value="pending">En attente</option>
                     <option value="approved">Approuvé</option>
@@ -249,10 +269,10 @@ const Declaration = () => {
                 </InputGroup>
               </Col>
               <Col lg={5} className="ms-auto text-end">
-                <Button variant="outline-secondary" className="me-2 hover-lift">
+                <Button variant="outline-secondary" className="me-2 hover-lift mac-btn">
                   <Printer className="me-1" /> Imprimer
                 </Button>
-                <Button variant="outline-primary" className="hover-lift">
+                <Button variant="outline-primary" className="hover-lift mac-btn">
                   <Download className="me-1" /> Exporter
                 </Button>
               </Col>
@@ -260,9 +280,9 @@ const Declaration = () => {
           </Card.Body>
         </Card>
 
-        <Card className="shadow-sm border-0">
+        <Card className="shadow-sm border-0 glass-card slide-in">
           <div className="table-responsive">
-            <Table hover className="mb-0">
+            <Table hover className="mb-0 mac-table">
               <thead className="bg-light">
                 <tr>
                   <th>ID</th>
@@ -305,7 +325,7 @@ const Declaration = () => {
                       <td>{new Date(declaration.createdAt).toLocaleDateString()}</td>
                       <td>
                         <Dropdown align="end">
-                          <Dropdown.Toggle as={Button} variant="light" size="sm" className="border-0">
+                          <Dropdown.Toggle as={Button} variant="light" size="sm" className="border-0 mac-btn-sm">
                             <ThreeDots />
                           </Dropdown.Toggle>
                           <Dropdown.Menu>
@@ -335,7 +355,13 @@ const Declaration = () => {
       </div>
 
       {/* Create Declaration Modal */}
-      <Modal show={showCreateModal} onHide={() => setShowCreateModal(false)} backdrop="static" size="lg">
+      <Modal
+        show={showCreateModal}
+        onHide={() => setShowCreateModal(false)}
+        backdrop="static"
+        size="lg"
+        className="mac-modal"
+      >
         <Modal.Header closeButton>
           <Modal.Title>Nouvelle Déclaration</Modal.Title>
         </Modal.Header>
@@ -351,6 +377,7 @@ const Declaration = () => {
                     value={formData.subjectId}
                     onChange={handleInputChange}
                     required
+                    className="glass-input"
                   />
                 </Form.Group>
               </Col>
@@ -363,6 +390,7 @@ const Declaration = () => {
                     value={formData.subjectName}
                     onChange={handleInputChange}
                     required
+                    className="glass-input"
                   />
                 </Form.Group>
               </Col>
@@ -375,6 +403,7 @@ const Declaration = () => {
                     value={formData.quantityDeclared}
                     onChange={handleInputChange}
                     required
+                    className="glass-input"
                   />
                 </Form.Group>
               </Col>
@@ -387,13 +416,20 @@ const Declaration = () => {
                     value={formData.bagsStamped}
                     onChange={handleInputChange}
                     required
+                    className="glass-input"
                   />
                 </Form.Group>
               </Col>
               <Col md={6}>
                 <Form.Group controlId="taxRate">
                   <Form.Label>Taux d'Imposition</Form.Label>
-                  <Form.Select name="taxRate" value={formData.taxRate} onChange={handleInputChange} required>
+                  <Form.Select
+                    name="taxRate"
+                    value={formData.taxRate}
+                    onChange={handleInputChange}
+                    required
+                    className="glass-input"
+                  >
                     <option value="0.05">5%</option>
                     <option value="0.08">8%</option>
                     <option value="0.10">10%</option>
@@ -408,24 +444,25 @@ const Declaration = () => {
                     type="text"
                     value={`${formData.amountDue ? formData.amountDue.toLocaleString() : 0} FC`}
                     readOnly
+                    className="glass-input"
                   />
                 </Form.Group>
               </Col>
             </Row>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={() => setShowCreateModal(false)}>
+            <Button variant="secondary" onClick={() => setShowCreateModal(false)} className="mac-btn">
               Annuler
             </Button>
-            <Button variant="primary" type="submit">
-              Créer Déclaration
+            <Button variant="primary" type="submit" className="mac-btn mac-btn-primary">
+              <Plus className="me-2" /> Créer Déclaration
             </Button>
           </Modal.Footer>
         </Form>
       </Modal>
 
       {/* View Declaration Modal */}
-      <Modal show={showViewModal} onHide={() => setShowViewModal(false)} size="lg">
+      <Modal show={showViewModal} onHide={() => setShowViewModal(false)} size="lg" className="mac-modal">
         <Modal.Header closeButton>
           <Modal.Title>Détails de la Déclaration #{selectedDeclaration?.id}</Modal.Title>
         </Modal.Header>
@@ -484,17 +521,27 @@ const Declaration = () => {
           )}
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowViewModal(false)}>
+          <Button variant="secondary" onClick={() => setShowViewModal(false)} className="mac-btn">
             Fermer
           </Button>
-          <Button variant="primary" onClick={() => selectedDeclaration && generatePDF(selectedDeclaration)}>
+          <Button
+            variant="primary"
+            onClick={() => selectedDeclaration && generatePDF(selectedDeclaration)}
+            className="mac-btn mac-btn-primary"
+          >
             <FileEarmarkPdf className="me-1" /> Générer PDF
           </Button>
         </Modal.Footer>
       </Modal>
 
       {/* Edit Declaration Modal */}
-      <Modal show={showEditModal} onHide={() => setShowEditModal(false)} backdrop="static" size="lg">
+      <Modal
+        show={showEditModal}
+        onHide={() => setShowEditModal(false)}
+        backdrop="static"
+        size="lg"
+        className="mac-modal"
+      >
         <Modal.Header closeButton>
           <Modal.Title>Modifier Déclaration #{selectedDeclaration?.id}</Modal.Title>
         </Modal.Header>
@@ -510,6 +557,7 @@ const Declaration = () => {
                     value={formData.subjectId}
                     onChange={handleInputChange}
                     required
+                    className="glass-input"
                   />
                 </Form.Group>
               </Col>
@@ -522,6 +570,7 @@ const Declaration = () => {
                     value={formData.subjectName}
                     onChange={handleInputChange}
                     required
+                    className="glass-input"
                   />
                 </Form.Group>
               </Col>
@@ -534,6 +583,7 @@ const Declaration = () => {
                     value={formData.quantityDeclared}
                     onChange={handleInputChange}
                     required
+                    className="glass-input"
                   />
                 </Form.Group>
               </Col>
@@ -546,13 +596,20 @@ const Declaration = () => {
                     value={formData.bagsStamped}
                     onChange={handleInputChange}
                     required
+                    className="glass-input"
                   />
                 </Form.Group>
               </Col>
               <Col md={6}>
                 <Form.Group controlId="editTaxRate">
                   <Form.Label>Taux d'Imposition</Form.Label>
-                  <Form.Select name="taxRate" value={formData.taxRate} onChange={handleInputChange} required>
+                  <Form.Select
+                    name="taxRate"
+                    value={formData.taxRate}
+                    onChange={handleInputChange}
+                    required
+                    className="glass-input"
+                  >
                     <option value="0.05">5%</option>
                     <option value="0.08">8%</option>
                     <option value="0.10">10%</option>
@@ -567,40 +624,41 @@ const Declaration = () => {
                     type="text"
                     value={`${formData.amountDue ? formData.amountDue.toLocaleString() : 0} FC`}
                     readOnly
+                    className="glass-input"
                   />
                 </Form.Group>
               </Col>
             </Row>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={() => setShowEditModal(false)}>
+            <Button variant="secondary" onClick={() => setShowEditModal(false)} className="mac-btn">
               Annuler
             </Button>
-            <Button variant="primary" type="submit">
-              Enregistrer les Modifications
+            <Button variant="primary" type="submit" className="mac-btn mac-btn-primary">
+              <Pencil className="me-2" /> Enregistrer les Modifications
             </Button>
           </Modal.Footer>
         </Form>
       </Modal>
 
       {/* Delete Confirmation Modal */}
-      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} className="mac-modal">
         <Modal.Header closeButton>
           <Modal.Title>Confirmer la Suppression</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           Êtes-vous sûr de vouloir supprimer la déclaration #{selectedDeclaration?.id} pour{" "}
           {selectedDeclaration?.subjectName} ?
-          <Alert variant="warning" className="mt-3">
+          <Alert variant="warning" className="mt-3 glass-alert">
             Cette action est irréversible.
           </Alert>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+          <Button variant="secondary" onClick={() => setShowDeleteModal(false)} className="mac-btn">
             Annuler
           </Button>
-          <Button variant="danger" onClick={handleDelete}>
-            Supprimer
+          <Button variant="danger" onClick={handleDelete} className="mac-btn">
+            <Trash className="me-2" /> Supprimer
           </Button>
         </Modal.Footer>
       </Modal>

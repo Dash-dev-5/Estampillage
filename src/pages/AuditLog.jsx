@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { Row, Col, Card, Table, Form, InputGroup, Badge, Button } from "react-bootstrap"
@@ -51,7 +53,8 @@ const AuditLog = () => {
   const filteredAudits = audits.filter((audit) => {
     const matchesText = audit.details.toLowerCase().includes(filter.toLowerCase())
     const matchesAction = !actionFilter || audit.action === actionFilter
-    const matchesDate = !dateFilter || new Date(audit.timestamp).toLocaleDateString() === new Date(dateFilter).toLocaleDateString()
+    const matchesDate =
+      !dateFilter || new Date(audit.timestamp).toLocaleDateString() === new Date(dateFilter).toLocaleDateString()
 
     return matchesText && matchesAction && matchesDate
   })
@@ -125,11 +128,7 @@ const AuditLog = () => {
                   <InputGroup.Text>
                     <Calendar />
                   </InputGroup.Text>
-                  <Form.Control
-                    type="date"
-                    value={dateFilter}
-                    onChange={(e) => setDateFilter(e.target.value)}
-                  />
+                  <Form.Control type="date" value={dateFilter} onChange={(e) => setDateFilter(e.target.value)} />
                 </InputGroup>
               </Col>
               <Col md={2} className="text-end">

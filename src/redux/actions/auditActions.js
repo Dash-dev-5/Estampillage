@@ -62,7 +62,7 @@ export const fetchAudits = () => async (dispatch) => {
   try {
     // Simulate API call
     /*
-    const response = await fetch(`${import.meta.env.REACT_APP_ADMIN_API_URL}/audits`, {
+    const response = await fetch(`${process.env.REACT_APP_ADMIN_API_URL}/audits`, {
       headers: {
         'Authorization': `Bearer ${getState().auth.token}`
       }

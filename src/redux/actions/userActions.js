@@ -78,7 +78,7 @@ export const fetchUsers = () => async (dispatch, getState) => {
   try {
     // Simulate API call
     /*
-    const response = await fetch(`${import.meta.env.REACT_APP_ADMIN_API_URL}/users`, {
+    const response = await fetch(`${process.env.REACT_APP_ADMIN_API_URL}/users`, {
       headers: {
         'Authorization': `Bearer ${getState().auth.token}`
       }
@@ -120,7 +120,7 @@ export const createUser = (userData) => async (dispatch, getState) => {
   try {
     // Simulate API call
     /*
-    const response = await fetch(`${import.meta.env.REACT_APP_ADMIN_API_URL}/users`, {
+    const response = await fetch(`${process.env.REACT_APP_ADMIN_API_URL}/users`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -214,7 +214,7 @@ export const updateUser = (id, userData) => async (dispatch, getState) => {
   try {
     // Simulate API call
     /*
-    const response = await fetch(`${import.meta.env.REACT_APP_ADMIN_API_URL}/users/${id}`, {
+    const response = await fetch(`${process.env.REACT_APP_ADMIN_API_URL}/users/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -308,7 +308,7 @@ export const deleteUser = (id) => async (dispatch, getState) => {
   try {
     // Simulate API call
     /*
-    const response = await fetch(`${import.meta.env.REACT_APP_ADMIN_API_URL}/users/${id}`, {
+    const response = await fetch(`${process.env.REACT_APP_ADMIN_API_URL}/users/${id}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${getState().auth.token}`
@@ -384,7 +384,7 @@ export const resetPassword = (id, passwordData) => async (dispatch, getState) =>
   try {
     // Simulate API call
     /*
-    const response = await fetch(`${import.meta.env.REACT_APP_ADMIN_API_URL}/users/${id}/reset-password`, {
+    const response = await fetch(`${process.env.REACT_APP_ADMIN_API_URL}/users/${id}/reset-password`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

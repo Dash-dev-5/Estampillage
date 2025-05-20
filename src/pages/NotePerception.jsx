@@ -2,20 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
-import {
-  Card,
-  Badge,
-  Row,
-  Col,
-  Form,
-  Button,
-  Table,
-  Modal,
-  Alert,
-  InputGroup,
-  Nav,
-  Spinner,
-} from "react-bootstrap"
+import { Card, Badge, Row, Col, Form, Button, Table, Modal, Alert, InputGroup, Nav, Spinner } from "react-bootstrap"
 import {
   Receipt,
   CheckCircle,
@@ -24,7 +11,6 @@ import {
   Search,
   Filter,
   Printer,
-  ThreeDots,
   Eye,
   FileEarmarkPdf,
   Download,
@@ -35,6 +21,8 @@ import PageTitle from "../components/common/PageTitle"
 import { fetchDeclarations } from "../redux/actions/declarationActions"
 import { jsPDF } from "jspdf"
 import "jspdf-autotable"
+import { toast } from "react-toastify"
+import { isAdmin, isDG } from "../utils/permissions"
 
 // Simulated data for notes de perception
 const simulatedPerceptions = [
@@ -42,34 +30,56 @@ const simulatedPerceptions = [
     id: 1,
     declarationId: 1,
     subjectName: "Entreprise XYZ",
-    valueNumber: "VN-00123",
+    valueNumber: "",
     amount: 50000,
     status: "pending",
     createdBy: 2,
     createdAt: "2023-01-16T09:45:00Z",
     printed: false,
+    opgId: 2,
   },
   {
     id: 2,
     declarationId: 2,
     subjectName: "Compagnie ABC",
-    valueNumber: "VN-00124",
+    valueNumber: "VN-00002",
     amount: 125000,
     status: "validated",
     createdBy: 3,
     createdAt: "2023-02-22T10:30:00Z",
     printed: true,
+    opgId: 3,
   },
   {
     id: 3,
     declarationId: 3,
     subjectName: "Société DEF",
-    valueNumber: "VN-00125",
+    valueNumber: "VN-00005",
     amount: 40000,
     status: "rejected",
     createdBy: 2,
     createdAt: "2023-03-07T14:15:00Z",
     printed: false,
+    opgId: 2,
+  },
+]
+
+// Simulated data for value prints
+const simulatedValuePrints = [
+  {
+    id: 1,
+    valueNumber: "VN-00001",
+    status: "available",
+  },
+  {
+    id: 3,
+    valueNumber: "VN-00003",
+    status: "available",
+  },
+  {
+    id: 4,
+    valueNumber: "VN-00004",
+    status: "available",
   },
 ]
 
@@ -79,12 +89,13 @@ const NotePerception = () => {
   const { user } = useSelector((state) => state.auth)
 
   // State
-  const [perceptions, setPerceptions] = useState(simulatedPerceptions)
+  const [perceptions, setPerceptions] = useState([])
+  const [valuePrints, setValuePrints] = useState(simulatedValuePrints)
   const [selectedPerception, setSelectedPerception] = useState(null)
   const [filter, setFilter] = useState("")
   const [statusFilter, setStatusFilter] = useState("")
   const [activeTab, setActiveTab] = useState("pending")
-  const [valueNumber, setValueNumber] = useState("")
+  const [selectedValuePrint, setSelectedValuePrint] = useState(null)
   const [showValidateModal, setShowValidateModal] = useState(false)
   const [showViewModal, setShowViewModal] = useState(false)
   const [showPrintModal, setShowPrintModal] = useState(false)
@@ -92,7 +103,17 @@ const NotePerception = () => {
 
   useEffect(() => {
     dispatch(fetchDeclarations())
-  }, [dispatch])
+
+    // Filter perceptions based on user role
+    if (isAdmin(user) || isDG(user)) {
+      // Admins and DG can see all perceptions
+      setPerceptions(simulatedPerceptions)
+    } else {
+      // OPGs can only see their own perceptions
+      const filteredPerceptions = simulatedPerceptions.filter((p) => p.opgId === user.id)
+      setPerceptions(filteredPerceptions)
+    }
+  }, [dispatch, user])
 
   const handleViewModalOpen = (perception) => {
     setSelectedPerception(perception)
@@ -101,7 +122,7 @@ const NotePerception = () => {
 
   const handleValidateModalOpen = (perception) => {
     setSelectedPerception(perception)
-    setValueNumber("")
+    setSelectedValuePrint(null)
     setShowValidateModal(true)
   }
 
@@ -115,19 +136,38 @@ const NotePerception = () => {
     setLoading(true)
 
     setTimeout(() => {
-      if (valueNumber === "invalid") {
-        alert("Numéro de valeur déjà utilisé ou invalide.")
+      if (!selectedValuePrint) {
+        toast.error("Veuillez sélectionner un imprimé de valeur.")
         setLoading(false)
         return
       }
 
+      // Update perception with selected value print
       const updatedPerceptions = perceptions.map((p) =>
-        p.id === selectedPerception.id ? { ...p, status: "validated", valueNumber, printed: false } : p,
+        p.id === selectedPerception.id
+          ? {
+              ...p,
+              status: "validated",
+              valueNumber: selectedValuePrint.valueNumber,
+              printed: false,
+            }
+          : p,
       )
 
+      // Remove the used value print from available ones
+      const updatedValuePrints = valuePrints.filter((vp) => vp.id !== selectedValuePrint.id)
+
       setPerceptions(updatedPerceptions)
+      setValuePrints(updatedValuePrints)
       setShowValidateModal(false)
       setLoading(false)
+
+      // Automatically open print modal after validation
+      const updatedPerception = updatedPerceptions.find((p) => p.id === selectedPerception.id)
+      setSelectedPerception(updatedPerception)
+      setShowPrintModal(true)
+
+      toast.success("La note de perception a été validée avec succès.")
     }, 1000)
   }
 
@@ -138,13 +178,12 @@ const NotePerception = () => {
     setTimeout(() => {
       generatePDF(selectedPerception)
 
-      const updatedPerceptions = perceptions.map((p) =>
-        p.id === selectedPerception.id ? { ...p, printed: true } : p,
-      )
+      const updatedPerceptions = perceptions.map((p) => (p.id === selectedPerception.id ? { ...p, printed: true } : p))
 
       setPerceptions(updatedPerceptions)
       setShowPrintModal(false)
       setLoading(false)
+      toast.success("La note de perception a été imprimée avec succès.")
     }, 1000)
   }
 
@@ -152,7 +191,7 @@ const NotePerception = () => {
     const matchesFilter =
       perception.subjectName.toLowerCase().includes(filter.toLowerCase()) ||
       perception.id.toString().includes(filter) ||
-      perception.valueNumber.toLowerCase().includes(filter.toLowerCase())
+      (perception.valueNumber && perception.valueNumber.toLowerCase().includes(filter.toLowerCase()))
 
     const matchesStatus = !statusFilter || perception.status === statusFilter
     const matchesTab =
@@ -168,29 +207,38 @@ const NotePerception = () => {
     switch (status) {
       case "pending":
         return (
-          <Badge bg="warning" className="d-flex align-items-center">
+          <Badge bg="warning" className="d-flex align-items-center mac-badge">
             <Calendar3 className="me-1" /> En attente
           </Badge>
         )
       case "validated":
         return (
-          <Badge bg="success" className="d-flex align-items-center">
+          <Badge bg="success" className="d-flex align-items-center mac-badge">
             <CheckCircle className="me-1" /> Validé
           </Badge>
         )
       case "rejected":
         return (
-          <Badge bg="danger" className="d-flex align-items-center">
+          <Badge bg="danger" className="d-flex align-items-center mac-badge">
             <XCircle className="me-1" /> Rejeté
           </Badge>
         )
       default:
-        return <Badge bg="secondary">Inconnu</Badge>
+        return (
+          <Badge bg="secondary" className="mac-badge">
+            Inconnu
+          </Badge>
+        )
     }
   }
 
   const generatePDF = (perception) => {
     const doc = new jsPDF()
+
+    // Add unique number in top right corner
+    doc.setFontSize(14)
+    doc.setFont("helvetica", "bold")
+    doc.text("#" + perception.id.toString().padStart(3, "0"), 195, 10, { align: "right" })
 
     // Add title
     doc.setFontSize(18)
@@ -198,6 +246,7 @@ const NotePerception = () => {
 
     // Add info
     doc.setFontSize(12)
+    doc.setFont("helvetica", "normal")
     doc.text("Numéro de note: " + perception.id, 14, 30)
     doc.text("Date: " + new Date(perception.createdAt).toLocaleDateString(), 14, 37)
     doc.text("Assujetti: " + perception.subjectName, 14, 44)
@@ -222,7 +271,7 @@ const NotePerception = () => {
 
     // Add footer
     doc.setFontSize(10)
-    doc.text(import.meta.env.REACT_APP_NAME || "ESTAMPILLAGE", 105, 280, { align: "center" })
+    doc.text(import.meta.env.VITE_APP_NAME || "ESTAMPILLAGE", 105, 280, { align: "center" })
 
     // Save the PDF
     doc.save("note-perception-" + perception.id + ".pdf")
@@ -237,9 +286,9 @@ const NotePerception = () => {
           icon={<Receipt className="me-2" size={24} />}
         />
 
-        <Card className="shadow-sm border-0 mb-4">
+        <Card className="shadow-sm border-0 mb-4 glass-card scale-in">
           <Card.Body>
-            <Nav variant="tabs" className="mb-3">
+            <Nav variant="tabs" className="mb-3 mac-tabs">
               <Nav.Item>
                 <Nav.Link
                   active={activeTab === "pending"}
@@ -281,7 +330,7 @@ const NotePerception = () => {
             <Row className="g-3 align-items-center">
               <Col md={6} lg={4}>
                 <InputGroup>
-                  <InputGroup.Text>
+                  <InputGroup.Text className="bg-transparent border-end-0">
                     <Search />
                   </InputGroup.Text>
                   <Form.Control
@@ -289,15 +338,20 @@ const NotePerception = () => {
                     placeholder="Rechercher par ID, nom ou numéro de valeur..."
                     value={filter}
                     onChange={(e) => setFilter(e.target.value)}
+                    className="glass-input border-start-0"
                   />
                 </InputGroup>
               </Col>
               <Col md={6} lg={3}>
                 <InputGroup>
-                  <InputGroup.Text>
+                  <InputGroup.Text className="bg-transparent border-end-0">
                     <Filter />
                   </InputGroup.Text>
-                  <Form.Select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+                  <Form.Select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="glass-input border-start-0"
+                  >
                     <option value="">Tous les statuts</option>
                     <option value="pending">En attente</option>
                     <option value="validated">Validé</option>
@@ -306,10 +360,10 @@ const NotePerception = () => {
                 </InputGroup>
               </Col>
               <Col lg={5} className="ms-auto text-end">
-                <Button variant="outline-secondary" className="me-2 hover-lift">
+                <Button variant="outline-secondary" className="me-2 hover-lift mac-btn">
                   <Printer className="me-1" /> Imprimer la liste
                 </Button>
-                <Button variant="outline-primary" className="hover-lift">
+                <Button variant="outline-primary" className="hover-lift mac-btn">
                   <Download className="me-1" /> Exporter
                 </Button>
               </Col>
@@ -317,9 +371,9 @@ const NotePerception = () => {
           </Card.Body>
         </Card>
 
-        <Card className="shadow-sm border-0">
+        <Card className="shadow-sm border-0 glass-card slide-in">
           <div className="table-responsive">
-            <Table hover className="mb-0">
+            <Table hover className="mb-0 mac-table">
               <thead className="bg-light">
                 <tr>
                   <th>ID</th>
@@ -346,14 +400,18 @@ const NotePerception = () => {
                       <td>#{perception.id}</td>
                       <td>#{perception.declarationId}</td>
                       <td>{perception.subjectName}</td>
-                      <td>{perception.valueNumber}</td>
+                      <td>{perception.valueNumber || "-"}</td>
                       <td>{perception.amount.toLocaleString()} FC</td>
                       <td>{getStatusBadge(perception.status)}</td>
                       <td>
                         {perception.printed ? (
-                          <Badge bg="success">Oui</Badge>
+                          <Badge bg="success" className="mac-badge">
+                            Oui
+                          </Badge>
                         ) : (
-                          <Badge bg="secondary">Non</Badge>
+                          <Badge bg="secondary" className="mac-badge">
+                            Non
+                          </Badge>
                         )}
                       </td>
                       <td>{new Date(perception.createdAt).toLocaleDateString()}</td>
@@ -364,6 +422,7 @@ const NotePerception = () => {
                             size="sm"
                             onClick={() => handleViewModalOpen(perception)}
                             title="Voir"
+                            className="mac-btn-sm"
                           >
                             <Eye />
                           </Button>
@@ -373,6 +432,7 @@ const NotePerception = () => {
                               size="sm"
                               onClick={() => handleValidateModalOpen(perception)}
                               title="Valider"
+                              className="mac-btn-sm"
                             >
                               <CheckCircle />
                             </Button>
@@ -383,6 +443,7 @@ const NotePerception = () => {
                               size="sm"
                               onClick={() => handlePrintModalOpen(perception)}
                               title="Imprimer"
+                              className="mac-btn-sm"
                             >
                               <Printer />
                             </Button>
@@ -392,6 +453,7 @@ const NotePerception = () => {
                             size="sm"
                             onClick={() => generatePDF(perception)}
                             title="Générer PDF"
+                            className="mac-btn-sm"
                           >
                             <FileEarmarkPdf />
                           </Button>
@@ -407,7 +469,12 @@ const NotePerception = () => {
       </div>
 
       {/* Validate Modal */}
-      <Modal show={showValidateModal} onHide={() => setShowValidateModal(false)} backdrop="static">
+      <Modal
+        show={showValidateModal}
+        onHide={() => setShowValidateModal(false)}
+        backdrop="static"
+        className="mac-modal"
+      >
         <Modal.Header closeButton>
           <Modal.Title>Valider la Note de Perception</Modal.Title>
         </Modal.Header>
@@ -420,37 +487,55 @@ const NotePerception = () => {
               </p>
 
               <Form.Group className="mb-3">
-                <Form.Label>Numéro d'Imprimé de Valeur</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={valueNumber}
-                  onChange={(e) => setValueNumber(e.target.value)}
-                  placeholder="Entrez le numéro d'imprimé de valeur"
+                <Form.Label>Sélectionner un Imprimé de Valeur</Form.Label>
+                <Form.Select
+                  value={selectedValuePrint ? selectedValuePrint.id : ""}
+                  onChange={(e) => {
+                    const id = Number.parseInt(e.target.value)
+                    const valuePrint = valuePrints.find((vp) => vp.id === id)
+                    setSelectedValuePrint(valuePrint || null)
+                  }}
                   required
-                />
+                  className="glass-input"
+                >
+                  <option value="">Sélectionnez un imprimé de valeur</option>
+                  {valuePrints.map((vp) => (
+                    <option key={vp.id} value={vp.id}>
+                      {vp.valueNumber}
+                    </option>
+                  ))}
+                </Form.Select>
                 <Form.Text className="text-muted">
-                  Veuillez vérifier que ce numéro n'a pas déjà été utilisé.
+                  Sélectionnez un imprimé de valeur disponible pour cette note de perception.
                 </Form.Text>
               </Form.Group>
 
-              <Alert variant="info" className="d-flex align-items-center">
+              {valuePrints.length === 0 && (
+                <Alert variant="warning" className="d-flex align-items-center glass-alert">
+                  <ExclamationTriangle className="me-2" />
+                  <div>
+                    Aucun imprimé de valeur disponible. Veuillez en créer dans la section "Gestion des Imprimés de
+                    Valeur".
+                  </div>
+                </Alert>
+              )}
+
+              <Alert variant="info" className="d-flex align-items-center glass-alert">
                 <ExclamationTriangle className="me-2" />
-                <div>
-                  Une fois validée, la note de perception pourra être imprimée et ne pourra plus être modifiée.
-                </div>
+                <div>Une fois validée, la note de perception pourra être imprimée et ne pourra plus être modifiée.</div>
               </Alert>
             </>
           )}
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowValidateModal(false)}>
+          <Button variant="secondary" onClick={() => setShowValidateModal(false)} className="mac-btn">
             Annuler
           </Button>
           <Button
             variant="success"
             onClick={validatePerception}
-            disabled={loading || !valueNumber}
-            className="d-flex align-items-center"
+            disabled={loading || !selectedValuePrint}
+            className="d-flex align-items-center mac-btn mac-btn-primary"
           >
             {loading ? (
               <>
@@ -466,13 +551,17 @@ const NotePerception = () => {
       </Modal>
 
       {/* View Modal */}
-      <Modal show={showViewModal} onHide={() => setShowViewModal(false)} size="lg">
+      <Modal show={showViewModal} onHide={() => setShowViewModal(false)} size="lg" className="mac-modal">
         <Modal.Header closeButton>
           <Modal.Title>Détails de la Note de Perception #{selectedPerception?.id}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {selectedPerception && (
             <>
+              <div className="text-end mb-3">
+                <h2 className="value-print-number">#{selectedPerception.id.toString().padStart(3, "0")}</h2>
+              </div>
+
               <Row className="mb-3">
                 <Col md={6}>
                   <p className="mb-1 text-muted">Status</p>
@@ -498,7 +587,7 @@ const NotePerception = () => {
               <Row className="mb-3">
                 <Col md={6}>
                   <p className="mb-1 text-muted">Numéro de Valeur</p>
-                  <h5>{selectedPerception.valueNumber}</h5>
+                  <h5>{selectedPerception.valueNumber || "Non assigné"}</h5>
                 </Col>
                 <Col md={6}>
                   <p className="mb-1 text-muted">Montant</p>
@@ -520,29 +609,57 @@ const NotePerception = () => {
           )}
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowViewModal(false)}>
+          <Button variant="secondary" onClick={() => setShowViewModal(false)} className="mac-btn">
             Fermer
           </Button>
-          <Button variant="primary" onClick={() => selectedPerception && generatePDF(selectedPerception)}>
+          <Button
+            variant="primary"
+            onClick={() => selectedPerception && generatePDF(selectedPerception)}
+            className="mac-btn mac-btn-primary"
+          >
             <FileEarmarkPdf className="me-1" /> Générer PDF
           </Button>
         </Modal.Footer>
       </Modal>
 
       {/* Print Modal */}
-      <Modal show={showPrintModal} onHide={() => setShowPrintModal(false)} backdrop="static">
+      <Modal show={showPrintModal} onHide={() => setShowPrintModal(false)} backdrop="static" className="mac-modal">
         <Modal.Header closeButton>
           <Modal.Title>Imprimer la Note de Perception</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {selectedPerception && (
             <>
+              <div className="text-end mb-3">
+                <h2 className="value-print-number">#{selectedPerception.id.toString().padStart(3, "0")}</h2>
+              </div>
+
               <p>
                 Vous êtes sur le point d'imprimer la note de perception #{selectedPerception.id} pour{" "}
                 <strong>{selectedPerception.subjectName}</strong>.
               </p>
 
-              <Alert variant="info" className="d-flex align-items-center">
+              <div className="perception-preview p-4 mb-3 border rounded">
+                <h4 className="text-center mb-3">Aperçu de la Note de Perception</h4>
+                <div className="d-flex justify-content-between mb-2">
+                  <span>Numéro de note:</span>
+                  <span>#{selectedPerception.id}</span>
+                </div>
+                <div className="d-flex justify-content-between mb-2">
+                  <span>Assujetti:</span>
+                  <span>{selectedPerception.subjectName}</span>
+                </div>
+                <div className="d-flex justify-content-between mb-2">
+                  <span>Numéro de valeur:</span>
+                  <span>{selectedPerception.valueNumber}</span>
+                </div>
+                <div className="d-flex justify-content-between mb-2">
+                  <span>Montant:</span>
+                  <span>{selectedPerception.amount.toLocaleString()} FC</span>
+                </div>
+              </div>
+
+              <Alert variant="info" className="d-flex align-items-center glass-alert">
                 <ExclamationTriangle className="me-2" />
                 <div>
                   Assurez-vous que l'imprimante est connectée et prête. Une fois imprimée, la note sera marquée comme
@@ -553,14 +670,14 @@ const NotePerception = () => {
           )}
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowPrintModal(false)}>
+          <Button variant="secondary" onClick={() => setShowPrintModal(false)} className="mac-btn">
             Annuler
           </Button>
           <Button
             variant="primary"
             onClick={printPerception}
             disabled={loading}
-            className="d-flex align-items-center"
+            className="d-flex align-items-center mac-btn mac-btn-primary"
           >
             {loading ? (
               <>

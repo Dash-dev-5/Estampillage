@@ -1,145 +1,106 @@
-import { AUTH_REQUEST, AUTH_SUCCESS, AUTH_FAILURE, LOGOUT, CHECK_AUTH_STATUS } from "../types"
-import { addAudit } from "./auditActions"
-import { showToast } from "./uiActions"
-import { fetchNotifications } from "./notificationActions"
+import {
+  LOGIN_REQUEST,
+  LOGIN_SUCCESS,
+  LOGIN_FAILURE,
+  LOGOUT,
+  AUTH_CHECK_START,
+  AUTH_CHECK_SUCCESS,
+  AUTH_CHECK_FAILURE,
+  CHECK_AUTH_STATUS,
+} from "../types"
 
-// Simulated data for now
-const simulatedUsers = [
-  {
-    id: 1,
-    username: "admin",
-    password: "admin123",
-    firstName: "Admin",
-    lastName: "User",
-    email: "admin@estampillage.com",
-    role: "admin",
-    site: "Headquarters",
-    permissions: ["all"],
-  },
-  {
-    id: 2,
-    username: "opg",
-    password: "opg123",
-    firstName: "OPG",
-    lastName: "User",
-    email: "opg@estampillage.com",
-    role: "opg",
-    site: "Border Post 1",
-    permissions: ["perceptions", "declarations", "fraud_report"],
-  },
-  {
-    id: 3,
-    username: "dg",
-    password: "dg123",
-    firstName: "Direction",
-    lastName: "Générale",
-    email: "dg@estampillage.com",
-    role: "dg",
-    site: "Headquarters",
-    permissions: ["perceptions", "declarations", "fraud_report", "statistics"],
-  },
-]
-
-// Login action
+// Fonction de connexion
 export const login = (credentials) => async (dispatch) => {
-  dispatch({ type: AUTH_REQUEST })
-
   try {
-    // Simulate API call
-    /*
-    const response = await fetch(`${import.meta.env.REACT_APP_AUTH_API_URL}/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(credentials)
-    });
+    dispatch({ type: LOGIN_REQUEST })
 
-    if (!response.ok) {
-      throw new Error('Authentication failed');
+    // Simulation d'une requête API
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+
+    // Vérification des identifiants (à remplacer par une vraie API)
+    const mockUsers = [
+      { id: 1, username: "admin", password: "admin123", role: "admin" },
+      { id: 2, username: "dg", password: "dg123", role: "dg" },
+      { id: 3, username: "opg", password: "opg123", role: "opg" },
+      { id: 4, username: "agent", password: "agent123", role: "industry_agent" },
+    ]
+
+    const user = mockUsers.find((u) => u.username === credentials.username && u.password === credentials.password)
+
+    if (user) {
+      // Stocker le token dans localStorage (simulé)
+      const token = `mock-jwt-token-${user.id}`
+      localStorage.setItem("token", token)
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          id: user.id,
+          username: user.username,
+          role: user.role,
+        }),
+      )
+
+      dispatch({
+        type: LOGIN_SUCCESS,
+        payload: {
+          user: {
+            id: user.id,
+            username: user.username,
+            role: user.role,
+          },
+          token,
+        },
+      })
+
+      return true
+    } else {
+      dispatch({
+        type: LOGIN_FAILURE,
+        payload: { error: "Identifiants invalides" },
+      })
+
+      return false
     }
-
-    const data = await response.json();
-    */
-
-    // Using simulated data
-    await new Promise((resolve) => setTimeout(resolve, 1000)) // Simulate network delay
-
-    const user = simulatedUsers.find(
-      (user) => user.username === credentials.username && user.password === credentials.password,
-    )
-
-    if (!user) {
-      throw new Error("Invalid credentials")
-    }
-
-    const data = {
-      token: `simulated-jwt-token-${user.id}-${Date.now()}`,
-      user: { ...user, password: undefined }, // Remove password from the user object
-    }
-
-    dispatch({
-      type: AUTH_SUCCESS,
-      payload: data,
-    })
-
-    dispatch(
-      addAudit({
-        action: "LOGIN",
-        userId: data.user.id,
-        details: `User ${data.user.username} logged in`,
-        timestamp: new Date().toISOString(),
-      }),
-    )
-
-    dispatch(
-      showToast({
-        message: "Connexion réussie",
-        type: "success",
-      }),
-    )
-
-    dispatch(fetchNotifications())
   } catch (error) {
     dispatch({
-      type: AUTH_FAILURE,
-      payload: error.message,
+      type: LOGIN_FAILURE,
+      payload: { error: error.message || "Une erreur est survenue" },
     })
 
-    dispatch(
-      showToast({
-        message: error.message || "Authentication failed",
-        type: "error",
-      }),
-    )
+    return false
   }
 }
 
-// Logout action
-export const logout = () => (dispatch, getState) => {
-  const { user } = getState().auth
+// Fonction de déconnexion
+export const logout = () => (dispatch) => {
+  localStorage.removeItem("token")
+  localStorage.removeItem("user")
 
-  dispatch({
-    type: LOGOUT,
-  })
+  dispatch({ type: LOGOUT })
+}
 
-  if (user) {
-    dispatch(
-      addAudit({
-        action: "LOGOUT",
-        userId: user.id,
-        details: `User ${user.username} logged out`,
-        timestamp: new Date().toISOString(),
-      }),
-    )
+// Fonction pour vérifier l'authentification
+export const checkAuth = () => (dispatch) => {
+  dispatch({ type: AUTH_CHECK_START })
+
+  try {
+    const token = localStorage.getItem("token")
+    const user = JSON.parse(localStorage.getItem("user") || "null")
+
+    if (token && user) {
+      dispatch({
+        type: AUTH_CHECK_SUCCESS,
+        payload: { user, token },
+      })
+      return true
+    } else {
+      dispatch({ type: AUTH_CHECK_FAILURE })
+      return false
+    }
+  } catch (error) {
+    dispatch({ type: AUTH_CHECK_FAILURE })
+    return false
   }
-
-  dispatch(
-    showToast({
-      message: "Vous avez été déconnecté",
-      type: "info",
-    }),
-  )
 }
 
 // Check authentication status
@@ -160,7 +121,7 @@ export const checkAuthStatus = () => (dispatch) => {
   // Simulate token validation
   /* 
   try {
-    const response = await fetch(`${import.meta.env.REACT_APP_AUTH_API_URL}/validate`, {
+    const response = await fetch(`${import.meta.env.VITE_AUTH_API_URL}/validate`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -192,8 +153,15 @@ export const checkAuthStatus = () => (dispatch) => {
   }
   */
 
+  const simulatedUsers = [
+    { id: 1, username: "admin", role: "admin" },
+    { id: 2, username: "dg", role: "dg" },
+    { id: 3, username: "opg", role: "opg" },
+    { id: 4, username: "agent", role: "industry_agent" },
+  ]
+
   // For simulation, check if the token starts with "simulated-jwt-token"
-  if (token.startsWith("simulated-jwt-token")) {
+  if (token.startsWith("mock-jwt-token")) {
     const userId = Number.parseInt(token.split("-")[3])
     const user = simulatedUsers.find((user) => user.id === userId)
 
@@ -207,7 +175,7 @@ export const checkAuthStatus = () => (dispatch) => {
       })
 
       // Fetch notifications
-      dispatch(fetchNotifications())
+      //dispatch(fetchNotifications())
       return
     }
   }

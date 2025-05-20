@@ -1,0 +1,251 @@
+/* macOS Styles */
+.mac-os-bg {
+  background: linear-gradient(135deg, #ff5f6d 0%, #6a82fb 100%);
+  min-height: 100vh;
+}
+
+/* Traffic light buttons */
+.traffic-light {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.traffic-light.red {
+  background-color: #ff5f57;
+  border: 1px solid #e0443e;
+}
+
+.traffic-light.yellow {
+  background-color: #ffbd2e;
+  border: 1px solid #dea123;
+}
+
+.traffic-light.green {
+  background-color: #28c940;
+  border: 1px solid #1aab29;
+}
+
+/* Sidebar */
+.mac-sidebar {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.mac-nav-link {
+  padding: 8px 16px;
+  color: #333;
+  transition: all 0.2s ease;
+  border-left: 3px solid transparent;
+}
+
+.mac-nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.mac-nav-link.active {
+  background-color: rgba(255, 255, 255, 0.5);
+  border-left: 3px solid #007aff;
+  font-weight: 500;
+}
+
+/* macOS Dock */
+.mac-dock-container {
+  display: flex;
+  justify-content: center;
+  padding: 10px 0;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+.mac-dock {
+  display: flex;
+  background-color: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(20px);
+  border-radius: 16px;
+  padding: 6px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+.mac-dock-item {
+  width: 50px;
+  height: 50px;
+  margin: 0 5px;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mac-dock-item:hover {
+  transform: scale(1.2);
+}
+
+.mac-dock-item img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+/* macOS Cards */
+.glass-card {
+  background-color: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.mac-btn {
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.mac-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.mac-btn-primary {
+  background: linear-gradient(to right, #007aff, #5856d6);
+  border: none;
+}
+
+/* Value Print Number */
+.value-print-number {
+  font-family: "SF Mono", monospace;
+  font-weight: bold;
+  letter-spacing: 1px;
+  color: #007aff;
+}
+
+/* macOS Table */
+.mac-table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.mac-table thead th {
+  background-color: rgba(255, 255, 255, 0.5);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  font-weight: 500;
+  color: #333;
+  padding: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.mac-table tbody tr {
+  transition: all 0.2s ease;
+}
+
+.mac-table tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* macOS Badge */
+.mac-badge {
+  border-radius: 12px;
+  padding: 5px 10px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+/* macOS Modal */
+.mac-modal .modal-content {
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+.mac-modal .modal-header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.mac-modal .modal-footer {
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Glass Input */
+.glass-input {
+  background-color: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  backdrop-filter: blur(5px);
+}
+
+.glass-input:focus {
+  background-color: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+  border-color: #86b7fe;
+}
+
+/* Glass Alert */
+.glass-alert {
+  background-color: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Animations */
+.hover-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.scale-in {
+  animation: scaleIn 0.3s ease forwards;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.slide-in {
+  animation: slideIn 0.3s ease forwards;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Dashboard Cards */
+.dashboard-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.dashboard-card .icon-bg {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  font-size: 3rem;
+  opacity: 0.2;
+  color: #007aff;
+}

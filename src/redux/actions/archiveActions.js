@@ -53,7 +53,7 @@ export const fetchArchives = () => async (dispatch, getState) => {
   try {
     // Simulate API call
     /*
-    const response = await fetch(`${import.meta.env.REACT_APP_ADMIN_API_URL}/archives`, {
+    const response = await fetch(`${process.env.REACT_APP_ADMIN_API_URL}/archives`, {
       headers: {
         'Authorization': `Bearer ${getState().auth.token}`
       }
@@ -95,7 +95,7 @@ export const archiveDocument = (documentData) => async (dispatch, getState) => {
   try {
     // Simulate API call
     /*
-    const response = await fetch(`${import.meta.env.REACT_APP_ADMIN_API_URL}/archives`, {
+    const response = await fetch(`${process.env.REACT_APP_ADMIN_API_URL}/archives`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -176,7 +176,7 @@ export const restoreDocument = (id) => async (dispatch, getState) => {
   try {
     // Simulate API call
     /*
-    const response = await fetch(`${import.meta.env.REACT_APP_ADMIN_API_URL}/archives/${id}/restore`, {
+    const response = await fetch(`${process.env.REACT_APP_ADMIN_API_URL}/archives/${id}/restore`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${getState().auth.token}`

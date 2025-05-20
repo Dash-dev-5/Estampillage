@@ -1,32 +1,19 @@
+"use client"
+
 import { useState, useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { Row, Col, Card, Table, Button, Form, Modal, Alert, Badge, InputGroup } from "react-bootstrap"
-import {
-  PeopleFill,
-  Search,
-  PlusLg,
-  Pencil,
-  Trash,
-  Eye,
-  Key,
-  CheckCircle,
-  XCircle,
-  GeoAlt,
-  Telephone,
-  Envelope,
-  Building,
-} from "react-bootstrap-icons"
+import { PeopleFill, Search, Pencil, Trash, Eye, Key, CheckCircle, XCircle, GeoAlt } from "react-bootstrap-icons"
 import MainLayout from "../components/common/MainLayout"
 import PageTitle from "../components/common/PageTitle"
 import { fetchUsers, createUser, updateUser, deleteUser, resetPassword } from "../redux/actions/userActions"
 
 const UserManagement = () => {
-  // Redux hooks
   const dispatch = useDispatch()
   const { users, loading, error } = useSelector((state) => state.user)
   const { user: currentUser } = useSelector((state) => state.auth)
 
-  // State management
+  // State
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [showViewModal, setShowViewModal] = useState(false)
@@ -34,8 +21,6 @@ const UserManagement = () => {
   const [showResetPasswordModal, setShowResetPasswordModal] = useState(false)
   const [selectedUser, setSelectedUser] = useState(null)
   const [filter, setFilter] = useState("")
-  
-  // Form states
   const [formData, setFormData] = useState({
     username: "",
     firstName: "",
@@ -47,18 +32,15 @@ const UserManagement = () => {
     confirmPassword: "",
     status: "active",
   })
-  
   const [passwordData, setPasswordData] = useState({
     password: "",
     confirmPassword: "",
   })
 
-  // Effects
   useEffect(() => {
     dispatch(fetchUsers())
   }, [dispatch])
 
-  // Handler functions
   const handleCreateModalOpen = () => {
     setFormData({
       username: "",
@@ -153,7 +135,6 @@ const UserManagement = () => {
     setShowDeleteModal(false)
   }
 
-  // Utility functions
   const filteredUsers = users.filter(
     (user) =>
       user.username.toLowerCase().includes(filter.toLowerCase()) ||
@@ -190,11 +171,9 @@ const UserManagement = () => {
     )
   }
 
-  // Render
   return (
     <MainLayout>
       <div className="animate__animated animate__fadeIn">
-        {/* Page Title Section */}
         <PageTitle
           title="Gestion des Utilisateurs"
           subtitle="Gérez les utilisateurs du système"
@@ -204,14 +183,12 @@ const UserManagement = () => {
           actionOnClick={handleCreateModalOpen}
         />
 
-        {/* Error Alert */}
         {error && (
           <Alert variant="danger" className="animate__animated animate__fadeIn">
             {error}
           </Alert>
         )}
 
-        {/* Search Filter Card */}
         <Card className="shadow-sm border-0 mb-4">
           <Card.Body>
             <Row className="g-3 align-items-center">
@@ -232,7 +209,6 @@ const UserManagement = () => {
           </Card.Body>
         </Card>
 
-        {/* Users Table */}
         <Card className="shadow-sm border-0">
           <div className="table-responsive">
             <Table hover className="mb-0">
@@ -323,318 +299,357 @@ const UserManagement = () => {
             </Table>
           </div>
         </Card>
+      </div>
 
-        {/* Create User Modal */}
-        <Modal show={showCreateModal} onHide={() => setShowCreateModal(false)} backdrop="static" size="lg">
-          <Modal.Header closeButton>
-            <Modal.Title>Nouvel Utilisateur</Modal.Title>
-          </Modal.Header>
-          <Form onSubmit={handleSubmit}>
-            <Modal.Body>
-              <Row className="g-3">
+      {/* Create User Modal */}
+      <Modal show={showCreateModal} onHide={() => setShowCreateModal(false)} backdrop="static" size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>Nouvel Utilisateur</Modal.Title>
+        </Modal.Header>
+        <Form onSubmit={handleSubmit}>
+          <Modal.Body>
+            <Row className="g-3">
+              <Col md={6}>
+                <Form.Group controlId="username">
+                  <Form.Label>Nom d'utilisateur</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="username"
+                    value={formData.username}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group controlId="email">
+                  <Form.Label>Email</Form.Label>
+                  <Form.Control
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group controlId="firstName">
+                  <Form.Label>Prénom</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="firstName"
+                    value={formData.firstName}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group controlId="lastName">
+                  <Form.Label>Nom</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="lastName"
+                    value={formData.lastName}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group controlId="role">
+                  <Form.Label>Rôle</Form.Label>
+                  <Form.Select name="role" value={formData.role} onChange={handleInputChange} required>
+                    <option value="">Sélectionner un rôle</option>
+                    <option value="admin">Administrateur</option>
+                    <option value="dg">Direction Générale</option>
+                    <option value="opg">OPG</option>
+                    <option value="comptable">Comptable</option>
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group controlId="site">
+                  <Form.Label>Site</Form.Label>
+                  <Form.Control type="text" name="site" value={formData.site} onChange={handleInputChange} required />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group controlId="password">
+                  <Form.Label>Mot de passe</Form.Label>
+                  <Form.Control
+                    type="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group controlId="confirmPassword">
+                  <Form.Label>Confirmer le mot de passe</Form.Label>
+                  <Form.Control
+                    type="password"
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group controlId="status">
+                  <Form.Label>Statut</Form.Label>
+                  <Form.Select name="status" value={formData.status} onChange={handleInputChange} required>
+                    <option value="active">Actif</option>
+                    <option value="inactive">Inactif</option>
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+            </Row>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setShowCreateModal(false)}>
+              Annuler
+            </Button>
+            <Button variant="primary" type="submit">
+              Créer Utilisateur
+            </Button>
+          </Modal.Footer>
+        </Form>
+      </Modal>
+
+      {/* Edit User Modal */}
+      <Modal show={showEditModal} onHide={() => setShowEditModal(false)} backdrop="static" size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>Modifier Utilisateur</Modal.Title>
+        </Modal.Header>
+        <Form onSubmit={handleSubmit}>
+          <Modal.Body>
+            <Row className="g-3">
+              <Col md={6}>
+                <Form.Group controlId="editUsername">
+                  <Form.Label>Nom d'utilisateur</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="username"
+                    value={formData.username}
+                    onChange={handleInputChange}
+                    required
+                    disabled
+                  />
+                  <Form.Text className="text-muted">Le nom d'utilisateur ne peut pas être modifié.</Form.Text>
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group controlId="editEmail">
+                  <Form.Label>Email</Form.Label>
+                  <Form.Control
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group controlId="editFirstName">
+                  <Form.Label>Prénom</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="firstName"
+                    value={formData.firstName}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group controlId="editLastName">
+                  <Form.Label>Nom</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="lastName"
+                    value={formData.lastName}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group controlId="editRole">
+                  <Form.Label>Rôle</Form.Label>
+                  <Form.Select name="role" value={formData.role} onChange={handleInputChange} required>
+                    <option value="">Sélectionner un rôle</option>
+                    <option value="admin">Administrateur</option>
+                    <option value="dg">Direction Générale</option>
+                    <option value="opg">OPG</option>
+                    <option value="comptable">Comptable</option>
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group controlId="editSite">
+                  <Form.Label>Site</Form.Label>
+                  <Form.Control type="text" name="site" value={formData.site} onChange={handleInputChange} required />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group controlId="editStatus">
+                  <Form.Label>Statut</Form.Label>
+                  <Form.Select name="status" value={formData.status} onChange={handleInputChange} required>
+                    <option value="active">Actif</option>
+                    <option value="inactive">Inactif</option>
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+            </Row>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setShowEditModal(false)}>
+              Annuler
+            </Button>
+            <Button variant="primary" type="submit">
+              Enregistrer les modifications
+            </Button>
+          </Modal.Footer>
+        </Form>
+      </Modal>
+
+      {/* View User Modal */}
+      <Modal show={showViewModal} onHide={() => setShowViewModal(false)} size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>Détails de l'Utilisateur</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {selectedUser && (
+            <div>
+              <Row className="mb-4">
                 <Col md={6}>
-                  <Form.Group controlId="username">
-                    <Form.Label>Nom d'utilisateur</Form.Label>
-                    <Form.Control
-                      type="text"
-                      name="username"
-                      value={formData.username}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </Form.Group>
+                  <h5 className="mb-3">
+                    {selectedUser.firstName} {selectedUser.lastName}
+                  </h5>
+                  <p className="mb-2">
+                    <strong>Nom d'utilisateur:</strong> {selectedUser.username}
+                  </p>
+                  <p className="mb-2">
+                    <strong>Email:</strong> {selectedUser.email}
+                  </p>
+                  <p className="mb-2">
+                    <strong>Rôle:</strong> {getRoleBadge(selectedUser.role)}
+                  </p>
                 </Col>
                 <Col md={6}>
-                  <Form.Group controlId="email">
-                    <Form.Label>Email</Form.Label>
-                    <Form.Control
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group controlId="firstName">
-                    <Form.Label>Prénom</Form.Label>
-                    <Form.Control
-                      type="text"
-                      name="firstName"
-                      value={formData.firstName}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group controlId="lastName">
-                    <Form.Label>Nom</Form.Label>
-                    <Form.Control
-                      type="text"
-                      name="lastName"
-                      value={formData.lastName}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group controlId="role">
-                    <Form.Label>Rôle</Form.Label>
-                    <Form.Select name="role" value={formData.role} onChange={handleInputChange} required>
-                      <option value="">Sélectionner un rôle</option>
-                      <option value="admin">Administrateur</option>
-                      <option value="dg">Direction Générale</option>
-                      <option value="opg">OPG</option>
-                      <option value="comptable">Comptable</option>
-                    </Form.Select>
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group controlId="site">
-                    <Form.Label>Site</Form.Label>
-                    <Form.Control
-                      type="text"
-                      name="site"
-                      value={formData.site}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group controlId="password">
-                    <Form.Label>Mot de passe</Form.Label>
-                    <Form.Control
-                      type="password"
-                      name="password"
-                      value={formData.password}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group controlId="confirmPassword">
-                    <Form.Label>Confirmer le mot de passe</Form.Label>
-                    <Form.Control
-                      type="password"
-                      name="confirmPassword"
-                      value={formData.confirmPassword}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group controlId="status">
-                    <Form.Label>Statut</Form.Label>
-                    <Form.Select name="status" value={formData.status} onChange={handleInputChange} required>
-                      <option value="active">Actif</option>
-                      <option value="inactive">Inactif</option>
-                    </Form.Select>
-                  </Form.Group>
+                  <div className="mb-3">
+                    <h6 className="mb-2">
+                      <GeoAlt className="me-2" /> Informations supplémentaires
+                    </h6>
+                    <p className="mb-2">
+                      <strong>Site:</strong> {selectedUser.site}
+                    </p>
+                    <p className="mb-2">
+                      <strong>Statut:</strong> {getStatusBadge(selectedUser.status)}
+                    </p>
+                    <p className="mb-2">
+                      <strong>Date de création:</strong> {new Date(selectedUser.createdAt).toLocaleDateString()}
+                    </p>
+                  </div>
                 </Col>
               </Row>
-            </Modal.Body>
-            <Modal.Footer>
-              <Button variant="secondary" onClick={() => setShowCreateModal(false)}>
-                Annuler
-              </Button>
-              <Button variant="primary" type="submit">
-                Créer Utilisateur
-              </Button>
-            </Modal.Footer>
-          </Form>
-        </Modal>
+            </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowViewModal(false)}>
+            Fermer
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
-        {/* Edit User Modal */}
-        <Modal show={showEditModal} onHide={() => setShowEditModal(false)} backdrop="static" size="lg">
-          <Modal.Header closeButton>
-            <Modal.Title>Modifier Utilisateur</Modal.Title>
-          </Modal.Header>
-          <Form onSubmit={handleSubmit}>
-            <Modal.Body>
-              <Row className="g-3">
-                <Col md={6}>
-                  <Form.Group controlId="editUsername">
-                    <Form.Label>Nom d'utilisateur</Form.Label>
-                    <Form.Control
-                      type="text"
-                      name="username"
-                      value={formData.username}
-                      onChange={handleInputChange}
-                      required
-                      disabled
-                    />
-                    <Form.Text className="text-muted">Le nom d'utilisateur ne peut pas être modifié.</Form.Text>
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group controlId="editEmail">
-                    <Form.Label>Email</Form.Label>
-                    <Form.Control
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group controlId="editFirstName">
-                    <Form.Label>Prénom</Form.Label>
-                    <Form.Control
-                      type="text"
-                      name="firstName"
-                      value={formData.firstName}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group controlId="editLastName">
-                    <Form.Label>Nom</Form.Label>
-                    <Form.Control
-                      type="text"
-                      name="lastName"
-                      value={formData.lastName}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group controlId="editRole">
-                    <Form.Label>Rôle</Form.Label>
-                    <Form.Select name="role" value={formData.role} onChange={handleInputChange} required>
-                      <option value="">Sélectionner un rôle</option>
-                      <option value="admin">Administrateur</option>
-                      <option value="dg">Direction Générale</option>
-                      <option value="opg">OPG</option>
-                      <option value="comptable">Comptable</option>
-                    </Form.Select>
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group controlId="editSite">
-                    <Form.Label>Site</Form.Label>
-                    <Form.Control
-                      type="text"
-                      name="site"
-                      value={formData.site}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </Form.Group>
-                </Col>
-                <Col md={6}>
-                  <Form.Group controlId="editStatus">
-                    <Form.Label>Statut</Form.Label>
-                    <Form.Select name="status" value={formData.status} onChange={handleInputChange} required>
-                      <option value="active">Actif</option>
-                      <option value="inactive">Inactif</option>
-                    </Form.Select>
-                  </Form.Group>
-                </Col>
-              </Row>
-            </Modal.Body>
-            <Modal.Footer>
-              <Button variant="secondary" onClick={() => setShowEditModal(false)}>
-                Annuler
-              </Button>
-              <Button variant="primary" type="submit">
-                Mettre à jour
-              </Button>
-            </Modal.Footer>
-          </Form>
-        </Modal>
-
-        {/* View User Modal */}
-        <Modal show={showViewModal} onHide={() => setShowViewModal(false)} size="md">
-          <Modal.Header closeButton>
-            <Modal.Title>Détails de l'utilisateur</Modal.Title>
-          </Modal.Header>
+      {/* Reset Password Modal */}
+      <Modal show={showResetPasswordModal} onHide={() => setShowResetPasswordModal(false)} backdrop="static">
+        <Modal.Header closeButton>
+          <Modal.Title>Réinitialiser le mot de passe</Modal.Title>
+        </Modal.Header>
+        <Form onSubmit={handleResetPassword}>
           <Modal.Body>
             {selectedUser && (
-              <div>
-                <p><strong>Nom d'utilisateur:</strong> {selectedUser.username}</p>
-                <p><strong>Nom complet:</strong> {selectedUser.firstName} {selectedUser.lastName}</p>
-                <p><strong>Email:</strong> {selectedUser.email}</p>
-                <p><strong>Rôle:</strong> {selectedUser.role}</p>
-                <p><strong>Site:</strong> {selectedUser.site}</p>
-                <p><strong>Statut:</strong> {selectedUser.status}</p>
-              </div>
+              <>
+                <p>
+                  Vous êtes sur le point de réinitialiser le mot de passe pour l'utilisateur{" "}
+                  <strong>
+                    {selectedUser.firstName} {selectedUser.lastName}
+                  </strong>
+                  .
+                </p>
+                <Form.Group controlId="password" className="mb-3">
+                  <Form.Label>Nouveau mot de passe</Form.Label>
+                  <Form.Control
+                    type="password"
+                    name="password"
+                    value={passwordData.password}
+                    onChange={handlePasswordInputChange}
+                    required
+                  />
+                </Form.Group>
+                <Form.Group controlId="confirmPassword">
+                  <Form.Label>Confirmer le nouveau mot de passe</Form.Label>
+                  <Form.Control
+                    type="password"
+                    name="confirmPassword"
+                    value={passwordData.confirmPassword}
+                    onChange={handlePasswordInputChange}
+                    required
+                  />
+                </Form.Group>
+              </>
             )}
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={() => setShowViewModal(false)}>
-              Fermer
-            </Button>
-          </Modal.Footer>
-        </Modal>
-
-        {/* Delete User Modal */}
-        <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)} centered>
-          <Modal.Header closeButton>
-            <Modal.Title>Confirmer la suppression</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            Êtes-vous sûr de vouloir supprimer l'utilisateur <strong>{selectedUser?.username}</strong> ?
-          </Modal.Body>
-          <Modal.Footer>
-            <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+            <Button variant="secondary" onClick={() => setShowResetPasswordModal(false)}>
               Annuler
             </Button>
-            <Button variant="danger" onClick={handleDelete}>
-              Supprimer
+            <Button variant="warning" type="submit">
+              <Key className="me-2" /> Réinitialiser
             </Button>
           </Modal.Footer>
-        </Modal>
+        </Form>
+      </Modal>
 
-        {/* Reset Password Modal */}
-        <Modal show={showResetPasswordModal} onHide={() => setShowResetPasswordModal(false)} centered>
-          <Modal.Header closeButton>
-            <Modal.Title>Réinitialiser le mot de passe</Modal.Title>
-          </Modal.Header>
-          <Form onSubmit={handleResetPassword}>
-            <Modal.Body>
-              <Form.Group className="mb-3" controlId="resetPassword">
-                <Form.Label>Nouveau mot de passe</Form.Label>
-                <Form.Control
-                  type="password"
-                  name="password"
-                  value={passwordData.password}
-                  onChange={handlePasswordInputChange}
-                  required
-                />
-              </Form.Group>
-              <Form.Group className="mb-3" controlId="confirmResetPassword">
-                <Form.Label>Confirmer le mot de passe</Form.Label>
-                <Form.Control
-                  type="password"
-                  name="confirmPassword"
-                  value={passwordData.confirmPassword}
-                  onChange={handlePasswordInputChange}
-                  required
-                />
-              </Form.Group>
-            </Modal.Body>
-            <Modal.Footer>
-              <Button variant="secondary" onClick={() => setShowResetPasswordModal(false)}>
-                Annuler
-              </Button>
-              <Button type="submit" variant="warning">
-                Réinitialiser
-              </Button>
-            </Modal.Footer>
-          </Form>
-        </Modal>
-      </div>
+      {/* Delete Confirmation Modal */}
+      <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirmer la suppression</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {selectedUser && (
+            <>
+              <p>
+                Êtes-vous sûr de vouloir supprimer l'utilisateur{" "}
+                <strong>
+                  {selectedUser.firstName} {selectedUser.lastName}
+                </strong>{" "}
+                ({selectedUser.username}) ?
+              </p>
+              <Alert variant="warning">
+                Cette action est irréversible. Toutes les données associées à cet utilisateur seront également
+                supprimées.
+              </Alert>
+            </>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+            Annuler
+          </Button>
+          <Button variant="danger" onClick={handleDelete}>
+            Supprimer
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </MainLayout>
   )
 }

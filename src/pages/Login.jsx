@@ -1,20 +1,21 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Container, Row, Col, Form, Button, Card, Alert } from "react-bootstrap"
 import { useDispatch, useSelector } from "react-redux"
-import { login } from "../redux/actions/authActions"
-import { BoxArrowInDown, Person, Lock } from "react-bootstrap-icons"
 import { useNavigate } from "react-router-dom"
+import { Container, Row, Col, Form, Button, Alert, Spinner } from "react-bootstrap"
+import { login } from "../redux/actions/authActions"
+import { FileEarmarkText, Person, Lock } from "react-bootstrap-icons"
 
 const Login = () => {
-  const [credentials, setCredentials] = useState({ username: "", password: "" })
-  const [validated, setValidated] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
-
   const dispatch = useDispatch()
   const navigate = useNavigate()
-  const { loading, error, isAuthenticated } = useSelector((state) => state.auth)
+  const { isAuthenticated, loading, error } = useSelector((state) => state.auth)
+
+  const [credentials, setCredentials] = useState({
+    username: "",
+    password: "",
+  })
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -32,43 +33,50 @@ const Login = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    const form = e.currentTarget
-
-    if (form.checkValidity() === false) {
-      e.stopPropagation()
-      setValidated(true)
-      return
-    }
-
     dispatch(login(credentials))
   }
 
   return (
-    <div className="bg-primary bg-opacity-10 min-vh-100 d-flex align-items-center">
-      <Container className="py-5">
+    <div
+      className="min-vh-100 d-flex align-items-center justify-content-center py-5"
+      style={{
+        background: "var(--mac-gradient)",
+      }}
+    >
+      <Container>
         <Row className="justify-content-center">
-          <Col md={8} lg={6} xl={5} className="fade-in">
+          <Col md={8} lg={6} xl={5}>
             <div className="text-center mb-4">
-              <BoxArrowInDown className="text-primary" size={50} />
-              <h2 className="mt-3 fw-bold text-primary">{import.meta.env.VITE_APP_NAME || "ESTAMPILLAGE"}</h2>
-              <p className="text-muted">Système de gestion intégré pour une entreprise publique d'estampillage</p>
+              <h1 className="text-white display-5 fw-bold mb-0 animate__animated animate__fadeInDown">
+                <FileEarmarkText className="me-2" />
+                {import.meta.env.VITE_APP_NAME || "ESTAMPILLAGE"}
+              </h1>
+              <p className="text-white-50 animate__animated animate__fadeIn animate__delay-1s">
+                Système de gestion d'estampillage
+              </p>
             </div>
 
-            <Card className="shadow-lg border-0 pulse">
-              <Card.Body className="p-4">
-                <h3 className="text-center mb-4">Connexion</h3>
-
+            <div className="mac-window animate__animated animate__fadeInUp">
+              <div className="mac-window-header">
+                <div className="mac-window-buttons">
+                  <button className="mac-window-button mac-window-button-close"></button>
+                  <button className="mac-window-button mac-window-button-minimize"></button>
+                  <button className="mac-window-button mac-window-button-maximize"></button>
+                </div>
+                <div className="mac-window-title">Connexion</div>
+              </div>
+              <div className="mac-window-content p-4">
                 {error && (
-                  <Alert variant="danger" className="animate__animated animate__fadeIn">
+                  <Alert variant="danger" className="animate__animated animate__headShake glass-alert">
                     {error}
                   </Alert>
                 )}
 
-                <Form noValidate validated={validated} onSubmit={handleSubmit}>
-                  <Form.Group className="mb-3">
+                <Form onSubmit={handleSubmit}>
+                  <Form.Group className="mb-4">
                     <Form.Label>Nom d'utilisateur</Form.Label>
                     <div className="input-group">
-                      <span className="input-group-text">
+                      <span className="input-group-text bg-transparent border-end-0">
                         <Person />
                       </span>
                       <Form.Control
@@ -78,53 +86,51 @@ const Login = () => {
                         onChange={handleChange}
                         placeholder="Entrez votre nom d'utilisateur"
                         required
+                        className="glass-input border-start-0"
                       />
-                      <Form.Control.Feedback type="invalid">
-                        Veuillez entrer votre nom d'utilisateur.
-                      </Form.Control.Feedback>
                     </div>
                   </Form.Group>
 
                   <Form.Group className="mb-4">
                     <Form.Label>Mot de passe</Form.Label>
                     <div className="input-group">
-                      <span className="input-group-text">
+                      <span className="input-group-text bg-transparent border-end-0">
                         <Lock />
                       </span>
                       <Form.Control
-                        type={showPassword ? "text" : "password"}
+                        type="password"
                         name="password"
                         value={credentials.password}
                         onChange={handleChange}
                         placeholder="Entrez votre mot de passe"
                         required
+                        className="glass-input border-start-0"
                       />
-                      <Button variant="outline-secondary" onClick={() => setShowPassword(!showPassword)}>
-                        {showPassword ? "Masquer" : "Afficher"}
-                      </Button>
-                      <Form.Control.Feedback type="invalid">Veuillez entrer votre mot de passe.</Form.Control.Feedback>
                     </div>
                   </Form.Group>
 
                   <div className="d-grid">
-                    <Button variant="primary" type="submit" disabled={loading} className="py-2 hover-lift">
-                      {loading ? "Connexion en cours..." : "Se connecter"}
+                    <Button variant="primary" type="submit" disabled={loading} className="py-2 mac-btn mac-btn-primary">
+                      {loading ? (
+                        <>
+                          <Spinner animation="border" size="sm" className="me-2" /> Connexion en cours...
+                        </>
+                      ) : (
+                        "Se connecter"
+                      )}
                     </Button>
                   </div>
                 </Form>
 
                 <div className="text-center mt-4">
-                  <p className="text-muted">
-                    Identifiants de démo: <br />
-                    Admin: admin / admin123 <br />
-                    OPG: opg / opg123 <br />
-                    DG: dg / dg123
+                  <p className="text-muted mb-0">
+                    <small>Utilisateurs de test: admin/admin123, opg/opg123, dg/dg123, agent/agent123</small>
                   </p>
                 </div>
-              </Card.Body>
-            </Card>
+              </div>
+            </div>
 
-            <div className="text-center mt-4 text-muted">
+            <div className="text-center mt-4 text-white-50 animate__animated animate__fadeIn animate__delay-2s">
               <small>
                 &copy; {new Date().getFullYear()} {import.meta.env.VITE_APP_NAME || "ESTAMPILLAGE"}. Tous droits
                 réservés.

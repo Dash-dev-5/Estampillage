@@ -50,7 +50,7 @@ export const fetchNotifications = () => async (dispatch, getState) => {
   try {
     // Simulate API call
     /*
-    const response = await fetch(`${import.meta.env.REACT_APP_NOTIFICATION_API_URL}`, {
+    const response = await fetch(`${process.env.REACT_APP_NOTIFICATION_API_URL}`, {
       headers: {
         'Authorization': `Bearer ${getState().auth.token}`
       }
@@ -83,7 +83,7 @@ export const markNotificationRead = (id) => async (dispatch, getState) => {
   try {
     // Simulate API call
     /*
-    const response = await fetch(`${import.meta.env.REACT_APP_NOTIFICATION_API_URL}/${id}/read`, {
+    const response = await fetch(`${process.env.REACT_APP_NOTIFICATION_API_URL}/${id}/read`, {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${getState().auth.token}`
@@ -118,7 +118,7 @@ export const markAllNotificationsRead = () => async (dispatch, getState) => {
   try {
     // Simulate API call
     /*
-    const response = await fetch(`${import.meta.env.REACT_APP_NOTIFICATION_API_URL}/mark-all-read`, {
+    const response = await fetch(`${process.env.REACT_APP_NOTIFICATION_API_URL}/mark-all-read`, {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${getState().auth.token}`
@@ -149,7 +149,7 @@ export const addNotification = (notification) => async (dispatch, getState) => {
   try {
     // Simulate API call
     /*
-    const response = await fetch(`${import.meta.env.REACT_APP_NOTIFICATION_API_URL}`, {
+    const response = await fetch(`${process.env.REACT_APP_NOTIFICATION_API_URL}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

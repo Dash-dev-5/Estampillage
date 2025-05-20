@@ -63,7 +63,7 @@ export const fetchSubjects = () => async (dispatch, getState) => {
   try {
     // Simulate API call
     /*
-    const response = await fetch(`${import.meta.env.REACT_APP_ADMIN_API_URL}/subjects`, {
+    const response = await fetch(`${process.env.REACT_APP_ADMIN_API_URL}/subjects`, {
       headers: {
         'Authorization': `Bearer ${getState().auth.token}`
       }
@@ -105,7 +105,7 @@ export const createSubject = (subjectData) => async (dispatch, getState) => {
   try {
     // Simulate API call
     /*
-    const response = await fetch(`${import.meta.env.REACT_APP_ADMIN_API_URL}/subjects`, {
+    const response = await fetch(`${process.env.REACT_APP_ADMIN_API_URL}/subjects`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -191,7 +191,7 @@ export const updateSubject = (id, subjectData) => async (dispatch, getState) => 
   try {
     // Simulate API call
     /*
-    const response = await fetch(`${import.meta.env.REACT_APP_ADMIN_API_URL}/subjects/${id}`, {
+    const response = await fetch(`${process.env.REACT_APP_ADMIN_API_URL}/subjects/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -279,7 +279,7 @@ export const deleteSubject = (id) => async (dispatch, getState) => {
   try {
     // Simulate API call
     /*
-    const response = await fetch(`${import.meta.env.REACT_APP_ADMIN_API_URL}/subjects/${id}`, {
+    const response = await fetch(`${process.env.REACT_APP_ADMIN_API_URL}/subjects/${id}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${getState().auth.token}`

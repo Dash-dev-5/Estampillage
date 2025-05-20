@@ -1,39 +1,33 @@
 "use client"
 
 import { useState } from "react"
-import { useDispatch, useSelector } from "react-redux"
-import { Link, useLocation, useNavigate } from "react-router-dom"
-import { Nav, Button, Collapse, Badge } from "react-bootstrap"
+import { Nav, Button } from "react-bootstrap"
+import { useSelector, useDispatch } from "react-redux"
+import { useLocation, Link, useNavigate } from "react-router-dom"
+import { logout } from "../../redux/actions/authActions"
 import {
-  BoxArrowRight,
-  Speedometer2,
+  House,
   FileEarmarkText,
   Receipt,
-  PeopleFill,
+  People,
   PersonBadge,
-  FileEarmarkBarGraph,
+  Building,
+  ClockHistory,
   Archive,
-  BoxArrowInDown,
-  Bell,
-  GearFill,
-  ChevronDown,
-  ChevronUp,
+  BoxArrowRight,
+  FileEarmarkRuled,
 } from "react-bootstrap-icons"
-import { logout } from "../../redux/actions/authActions"
-import NotificationDropdown from "./NotificationDropdown"
+import { isAdmin, isDG, canCreateDeclaration, canCreatePerception, canManageValuePrints } from "../../utils/permissions"
 
 const SideNav = () => {
-  const dispatch = useDispatch()
-  const navigate = useNavigate()
   const location = useLocation()
+  const navigate = useNavigate()
+  const dispatch = useDispatch()
   const { user } = useSelector((state) => state.auth)
-  const { notifications, unreadCount } = useSelector((state) => state.notification)
+  const [showAdminMenu, setShowAdminMenu] = useState(false)
 
-  const [expandedMenu, setExpandedMenu] = useState(null)
-  const [showNotifications, setShowNotifications] = useState(false)
-
-  const toggleMenu = (menu) => {
-    setExpandedMenu(expandedMenu === menu ? null : menu)
+  const isActive = (path) => {
+    return location.pathname === path
   }
 
   const handleLogout = () => {
@@ -41,167 +35,168 @@ const SideNav = () => {
     navigate("/login")
   }
 
-  const isAdmin = user && user.role === "admin"
-  const isDG = user && user.role === "dg"
-  const isOPG = user && user.role === "opg"
-
-  const menuItems = [
-    {
-      title: "Tableau de bord",
-      path: "/dashboard",
-      icon: <Speedometer2 className="me-2" />,
-      allowed: true,
-    },
-    {
-      title: "Déclarations",
-      path: "/declaration",
-      icon: <FileEarmarkText className="me-2" />,
-      allowed: true,
-    },
-    {
-      title: "Notes de perception",
-      path: "/note-perception",
-      icon: <Receipt className="me-2" />,
-      allowed: true,
-    },
-    {
-      title: "Gestion OPG",
-      path: "/opg-management",
-      icon: <PersonBadge className="me-2" />,
-      allowed: isAdmin || isDG,
-    },
-    {
-      title: "Administration",
-      icon: <GearFill className="me-2" />,
-      allowed: isAdmin,
-      subMenus: [
-        {
-          title: "Gestion des utilisateurs",
-          path: "/user-management",
-          icon: <PeopleFill className="me-2" />,
-        },
-        {
-          title: "Gestion des assujettis",
-          path: "/subject-management",
-          icon: <PeopleFill className="me-2" />,
-        },
-      ],
-    },
-    {
-      title: "Journal d'activité",
-      path: "/audit-log",
-      icon: <FileEarmarkBarGraph className="me-2" />,
-      allowed: isAdmin || isDG,
-    },
-    {
-      title: "Archives",
-      path: "/archives",
-      icon: <Archive className="me-2" />,
-      allowed: isAdmin || isDG,
-    },
-  ]
-
   return (
-    <div className="bg-dark text-light d-flex flex-column h-100 border-end" style={{ width: 260 }}>
-      <div className="p-3 d-flex align-items-center justify-content-center border-bottom border-secondary mb-2">
-        <h4 className="m-0 fw-bold d-flex align-items-center">
-          <BoxArrowInDown className="me-2" />
-          {import.meta.env.REACT_APP_NAME || "ESTAMPILLAGE"}
-        </h4>
+    <div
+      className="h-100 d-flex flex-column mac-sidebar"
+      style={{
+        width: "220px",
+        backgroundColor: "rgba(255, 200, 210, 0.85)",
+        backdropFilter: "blur(20px)",
+        position: "fixed",
+        overflowY: "auto",
+        zIndex: 1000,
+        borderRight: "1px solid rgba(0,0,0,0.1)",
+      }}
+    >
+      {/* Traffic light buttons */}
+      <div className="d-flex p-2 ps-3 align-items-center">
+        <div className="traffic-light red me-1"></div>
+        <div className="traffic-light yellow me-1"></div>
+        <div className="traffic-light green"></div>
       </div>
 
-      {user && (
-        <div className="px-3 py-2 text-center mb-3">
-          <h6 className="mb-1">
-            {user.firstName} {user.lastName}
-          </h6>
-          <span className="badge bg-primary">
-            {user.role === "admin" ? "Administrateur" : user.role === "dg" ? "Direction Générale" : "OPG"}
-          </span>
-        </div>
-      )}
+      <div className="p-3 border-bottom" style={{ borderColor: "rgba(0,0,0,0.1) !important" }}>
+        <h6 className="mb-0 text-dark fw-bold">Favoris</h6>
+      </div>
 
-      <Nav className="flex-column mb-auto px-2">
-        {menuItems.map(
-          (item, index) =>
-            item.allowed &&
-            (item.subMenus ? (
-              <div key={index} className="mb-1">
-                <Button
-                  variant="link"
-                  className="text-light text-decoration-none w-100 text-start d-flex align-items-center px-3 py-2 hover-lift"
-                  onClick={() => toggleMenu(item.title)}
-                >
-                  {item.icon}
-                  {item.title}
-                  {expandedMenu === item.title ? (
-                    <ChevronUp className="ms-auto" />
-                  ) : (
-                    <ChevronDown className="ms-auto" />
-                  )}
-                </Button>
-                <Collapse in={expandedMenu === item.title}>
-                  <div>
-                    {item.subMenus.map((subItem, subIndex) => (
-                      <Nav.Link
-                        key={subIndex}
-                        as={Link}
-                        to={subItem.path}
-                        className={`text-light d-flex align-items-center px-3 py-2 ms-3 ${
-                          location.pathname === subItem.path ? "bg-primary rounded" : "hover-lift"
-                        }`}
-                      >
-                        {subItem.icon}
-                        {subItem.title}
-                      </Nav.Link>
-                    ))}
-                  </div>
-                </Collapse>
-              </div>
-            ) : (
-              <Nav.Link
-                key={index}
-                as={Link}
-                to={item.path}
-                className={`text-light d-flex align-items-center px-3 py-2 mb-1 ${
-                  location.pathname === item.path ? "bg-primary rounded" : "hover-lift"
-                }`}
-              >
-                {item.icon}
-                {item.title}
-              </Nav.Link>
-            )),
+      <Nav className="flex-column p-0 mac-nav">
+        <Nav.Link
+          as={Link}
+          to="/dashboard"
+          className={`rounded-0 d-flex align-items-center mac-nav-link ${isActive("/dashboard") ? "active" : ""}`}
+        >
+          <House className="me-2 text-primary" size={16} /> Tableau de bord
+        </Nav.Link>
+
+        {canCreateDeclaration(user) && (
+          <Nav.Link
+            as={Link}
+            to="/declaration"
+            className={`rounded-0 d-flex align-items-center mac-nav-link ${isActive("/declaration") ? "active" : ""}`}
+          >
+            <FileEarmarkText className="me-2 text-info" size={16} /> Déclarations
+          </Nav.Link>
+        )}
+
+        {canCreatePerception(user) && (
+          <Nav.Link
+            as={Link}
+            to="/note-perception"
+            className={`rounded-0 d-flex align-items-center mac-nav-link ${
+              isActive("/note-perception") ? "active" : ""
+            }`}
+          >
+            <Receipt className="me-2 text-success" size={16} /> Notes de Perception
+          </Nav.Link>
+        )}
+
+        {canManageValuePrints(user) && (
+          <Nav.Link
+            as={Link}
+            to="/value-print-management"
+            className={`rounded-0 d-flex align-items-center mac-nav-link ${
+              isActive("/value-print-management") ? "active" : ""
+            }`}
+          >
+            <FileEarmarkRuled className="me-2 text-warning" size={16} /> Imprimés de Valeur
+          </Nav.Link>
         )}
       </Nav>
 
-      <div className="mt-auto p-3 border-top border-secondary">
-        <div className="d-flex justify-content-between align-items-center mb-3">
-          <Button
-            variant="link"
-            className="text-light d-flex align-items-center p-0 position-relative hover-lift"
-            onClick={() => setShowNotifications(!showNotifications)}
-          >
-            <Bell size={20} />
-            {unreadCount > 0 && (
-              <Badge bg="danger" pill className="position-absolute top-0 start-100 translate-middle">
-                {unreadCount}
-              </Badge>
-            )}
-          </Button>
+      <div className="p-3 border-bottom border-top mt-2" style={{ borderColor: "rgba(0,0,0,0.1) !important" }}>
+        <h6 className="mb-0 text-dark fw-bold">Administration</h6>
+      </div>
 
-          <Button
-            variant="outline-light"
-            size="sm"
-            className="d-flex align-items-center hover-lift"
-            onClick={handleLogout}
+      <Nav className="flex-column p-0 mac-nav">
+        {isAdmin(user) && (
+          <Nav.Link
+            as={Link}
+            to="/user-management"
+            className={`rounded-0 d-flex align-items-center mac-nav-link ${
+              isActive("/user-management") ? "active" : ""
+            }`}
           >
-            <BoxArrowRight className="me-2" /> Déconnexion
-          </Button>
-        </div>
-
-        {showNotifications && (
-          <NotificationDropdown notifications={notifications} onClose={() => setShowNotifications(false)} />
+            <People className="me-2 text-danger" size={16} /> Utilisateurs
+          </Nav.Link>
         )}
+
+        {(isAdmin(user) || isDG(user)) && (
+          <Nav.Link
+            as={Link}
+            to="/opg-management"
+            className={`rounded-0 d-flex align-items-center mac-nav-link ${
+              isActive("/opg-management") ? "active" : ""
+            }`}
+          >
+            <PersonBadge className="me-2 text-secondary" size={16} /> OPGs
+          </Nav.Link>
+        )}
+
+        <Nav.Link
+          as={Link}
+          to="/subject-management"
+          className={`rounded-0 d-flex align-items-center mac-nav-link ${
+            isActive("/subject-management") ? "active" : ""
+          }`}
+        >
+          <Building className="me-2 text-primary" size={16} /> Assujettis
+        </Nav.Link>
+
+        {(isAdmin(user) || isDG(user)) && (
+          <Nav.Link
+            as={Link}
+            to="/audit-log"
+            className={`rounded-0 d-flex align-items-center mac-nav-link ${isActive("/audit-log") ? "active" : ""}`}
+          >
+            <ClockHistory className="me-2 text-info" size={16} /> Journal d'audit
+          </Nav.Link>
+        )}
+
+        <Nav.Link
+          as={Link}
+          to="/archives"
+          className={`rounded-0 d-flex align-items-center mac-nav-link ${isActive("/archives") ? "active" : ""}`}
+        >
+          <Archive className="me-2 text-success" size={16} /> Archives
+        </Nav.Link>
+      </Nav>
+
+      <div className="p-3 border-bottom border-top mt-2" style={{ borderColor: "rgba(0,0,0,0.1) !important" }}>
+        <h6 className="mb-0 text-dark fw-bold">Tags</h6>
+      </div>
+
+      <Nav className="flex-column p-0 mac-nav">
+        <Nav.Link className="rounded-0 d-flex align-items-center mac-nav-link">
+          <div
+            className="me-2 rounded-circle"
+            style={{ width: "12px", height: "12px", backgroundColor: "#FF6B6B" }}
+          ></div>
+          Urgent
+        </Nav.Link>
+        <Nav.Link className="rounded-0 d-flex align-items-center mac-nav-link">
+          <div
+            className="me-2 rounded-circle"
+            style={{ width: "12px", height: "12px", backgroundColor: "#4ECDC4" }}
+          ></div>
+          En cours
+        </Nav.Link>
+        <Nav.Link className="rounded-0 d-flex align-items-center mac-nav-link">
+          <div
+            className="me-2 rounded-circle"
+            style={{ width: "12px", height: "12px", backgroundColor: "#FFD166" }}
+          ></div>
+          À vérifier
+        </Nav.Link>
+      </Nav>
+
+      <div className="mt-auto p-3 border-top" style={{ borderColor: "rgba(0,0,0,0.1) !important" }}>
+        <Button
+          variant="outline-dark"
+          className="w-100 d-flex align-items-center justify-content-center mac-btn"
+          onClick={handleLogout}
+        >
+          <BoxArrowRight className="me-2" /> Déconnexion
+        </Button>
       </div>
     </div>
   )

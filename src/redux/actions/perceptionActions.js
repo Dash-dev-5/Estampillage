@@ -61,7 +61,7 @@ export const fetchPerceptions = () => async (dispatch, getState) => {
   try {
     // Simulate API call
     /*
-    const response = await fetch(`${import.meta.env.REACT_APP_PERCEPTION_API_URL}`, {
+    const response = await fetch(`${process.env.REACT_APP_PERCEPTION_API_URL}`, {
       headers: {
         'Authorization': `Bearer ${getState().auth.token}`
       }
@@ -103,7 +103,7 @@ export const createPerception = (perceptionData) => async (dispatch, getState) =
   try {
     // Simulate API call
     /*
-    const response = await fetch(`${import.meta.env.REACT_APP_PERCEPTION_API_URL}`, {
+    const response = await fetch(`${process.env.REACT_APP_PERCEPTION_API_URL}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -198,7 +198,7 @@ export const updatePerception = (id, perceptionData) => async (dispatch, getStat
   try {
     // Simulate API call
     /*
-    const response = await fetch(`${import.meta.env.REACT_APP_PERCEPTION_API_URL}/${id}`, {
+    const response = await fetch(`${process.env.REACT_APP_PERCEPTION_API_URL}/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -280,7 +280,7 @@ export const deletePerception = (id) => async (dispatch, getState) => {
   try {
     // Simulate API call
     /*
-    const response = await fetch(`${import.meta.env.REACT_APP_PERCEPTION_API_URL}/${id}`, {
+    const response = await fetch(`${process.env.REACT_APP_PERCEPTION_API_URL}/${id}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${getState().auth.token}`

@@ -48,8 +48,8 @@ const Dashboard = () => {
       {
         label: "Revenus",
         data: [30000, 40000, 35000, 50000, 49000, 60000, 70000, 91000, 125000, 150000, 160000, 180000],
-        borderColor: "#0056b3",
-        backgroundColor: "rgba(0, 86, 179, 0.1)",
+        borderColor: "#0071e3",
+        backgroundColor: "rgba(0, 113, 227, 0.1)",
         tension: 0.4,
         fill: true,
       },
@@ -61,7 +61,7 @@ const Dashboard = () => {
     datasets: [
       {
         data: [40, 30, 30],
-        backgroundColor: ["#0056b3", "#6c757d", "#28a745"],
+        backgroundColor: ["#0071e3", "#6c757d", "#34c759"],
       },
     ],
   })
@@ -114,24 +114,28 @@ const Dashboard = () => {
     switch (status) {
       case "pending":
         return (
-          <Badge bg="warning">
+          <Badge bg="warning" className="mac-badge">
             <Clock className="me-1" /> En attente
           </Badge>
         )
       case "approved":
         return (
-          <Badge bg="success">
+          <Badge bg="success" className="mac-badge">
             <Check2Circle className="me-1" /> Approuvé
           </Badge>
         )
       case "rejected":
         return (
-          <Badge bg="danger">
+          <Badge bg="danger" className="mac-badge">
             <XCircle className="me-1" /> Rejeté
           </Badge>
         )
       default:
-        return <Badge bg="secondary">Inconnu</Badge>
+        return (
+          <Badge bg="secondary" className="mac-badge">
+            Inconnu
+          </Badge>
+        )
     }
   }
 
@@ -146,33 +150,36 @@ const Dashboard = () => {
 
         <Row className="g-3 mb-4">
           <Col md={6} xl={3}>
-            <Card className="shadow-sm border-0 bg-primary text-white h-100 hover-lift">
-              <Card.Body>
+            <Card className="shadow-sm border-0 glass-card dashboard-card scale-in">
+              <Card.Body className="p-4">
                 <div className="d-flex justify-content-between align-items-center">
                   <div>
-                    <h6 className="text-white-50 mb-0">Revenue Total</h6>
+                    <h6 className="text-muted mb-0">Revenue Total</h6>
                     <h3 className="mb-0">{totalRevenue.toLocaleString()} FC</h3>
                   </div>
-                  <div className="rounded-circle bg-white bg-opacity-25 p-3">
-                    <CashCoin size={24} />
+                  <div className="rounded-circle bg-primary bg-opacity-10 p-3">
+                    <CashCoin size={24} className="text-primary" />
                   </div>
                 </div>
-                <div className="mt-3 text-white-50">
+                <div className="mt-3 text-muted">
                   <ArrowUpRight className="me-1" /> +10.5% depuis le mois dernier
+                </div>
+                <div className="icon-bg">
+                  <CashCoin />
                 </div>
               </Card.Body>
             </Card>
           </Col>
 
           <Col md={6} xl={3}>
-            <Card className="shadow-sm border-0 h-100 hover-lift">
-              <Card.Body>
+            <Card className="shadow-sm border-0 glass-card dashboard-card scale-in">
+              <Card.Body className="p-4">
                 <div className="d-flex justify-content-between align-items-center">
                   <div>
                     <h6 className="text-muted mb-0">Déclarations</h6>
                     <h3 className="mb-0">{declarations.length}</h3>
                   </div>
-                  <div className="rounded-circle bg-success bg-opacity-25 p-3">
+                  <div className="rounded-circle bg-success bg-opacity-10 p-3">
                     <FileEarmarkText size={24} className="text-success" />
                   </div>
                 </div>
@@ -187,47 +194,59 @@ const Dashboard = () => {
                     <XCircle /> {rejectedDeclarations} rejetées
                   </span>
                 </div>
+                <div className="icon-bg">
+                  <FileEarmarkText />
+                </div>
               </Card.Body>
             </Card>
           </Col>
 
           <Col md={6} xl={3}>
-            <Card className="shadow-sm border-0 h-100 hover-lift">
-              <Card.Body>
+            <Card className="shadow-sm border-0 glass-card dashboard-card scale-in">
+              <Card.Body className="p-4">
                 <div className="d-flex justify-content-between align-items-center">
                   <div>
                     <h6 className="text-muted mb-0">OPG Actifs</h6>
                     <h3 className="mb-0">24</h3>
                   </div>
-                  <div className="rounded-circle bg-info bg-opacity-25 p-3">
+                  <div className="rounded-circle bg-info bg-opacity-10 p-3">
                     <PersonBadge size={24} className="text-info" />
                   </div>
                 </div>
                 <div className="mt-3 text-muted">3 nouveaux OPG ce mois-ci</div>
+                <div className="icon-bg">
+                  <PersonBadge />
+                </div>
               </Card.Body>
             </Card>
           </Col>
 
           <Col md={6} xl={3}>
-            <Card className="shadow-sm border-0 h-100 hover-lift">
-              <Card.Body>
+            <Card className="shadow-sm border-0 glass-card dashboard-card scale-in">
+              <Card.Body className="p-4">
                 <div className="d-flex justify-content-between align-items-center">
                   <div>
                     <h6 className="text-muted mb-0">Documents Archivés</h6>
                     <h3 className="mb-0">152</h3>
                   </div>
-                  <div className="rounded-circle bg-warning bg-opacity-25 p-3">
+                  <div className="rounded-circle bg-warning bg-opacity-10 p-3">
                     <Archive size={24} className="text-warning" />
                   </div>
                 </div>
                 <div className="mt-3 text-muted">18 nouveaux documents archivés cette semaine</div>
+                <div className="icon-bg">
+                  <Archive />
+                </div>
               </Card.Body>
             </Card>
           </Col>
         </Row>
 
         {notifications.filter((n) => !n.read).length > 0 && (
-          <Alert variant="info" className="d-flex align-items-center mb-4 animate__animated animate__fadeIn shadow-sm">
+          <Alert
+            variant="info"
+            className="d-flex align-items-center mb-4 animate__animated animate__fadeIn glass-alert"
+          >
             <ExclamationTriangle className="me-2" size={20} />
             <div className="flex-grow-1">
               Vous avez {notifications.filter((n) => !n.read).length} notification
@@ -239,8 +258,8 @@ const Dashboard = () => {
 
         <Row className="g-4 mb-4">
           <Col lg={8}>
-            <Card className="shadow-sm border-0 h-100">
-              <Card.Header className="bg-white border-0 py-3">
+            <Card className="shadow-sm border-0 glass-card slide-in">
+              <Card.Header className="bg-transparent border-0 py-3">
                 <h5 className="mb-0">Tendance des Revenus</h5>
               </Card.Header>
               <Card.Body>
@@ -250,8 +269,8 @@ const Dashboard = () => {
           </Col>
 
           <Col lg={4}>
-            <Card className="shadow-sm border-0 h-100">
-              <Card.Header className="bg-white border-0 py-3">
+            <Card className="shadow-sm border-0 glass-card slide-in">
+              <Card.Header className="bg-transparent border-0 py-3">
                 <h5 className="mb-0">Distribution des Revenus</h5>
               </Card.Header>
               <Card.Body>
@@ -263,15 +282,15 @@ const Dashboard = () => {
 
         <Row className="g-4">
           <Col lg={6}>
-            <Card className="shadow-sm border-0">
-              <Card.Header className="bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+            <Card className="shadow-sm border-0 glass-card slide-in">
+              <Card.Header className="bg-transparent border-0 py-3 d-flex justify-content-between align-items-center">
                 <h5 className="mb-0">Déclarations Récentes</h5>
-                <Link to="/declaration" className="btn btn-sm btn-outline-primary hover-lift">
+                <Link to="/declaration" className="btn btn-sm btn-outline-primary hover-lift mac-btn">
                   Voir tout
                 </Link>
               </Card.Header>
               <Card.Body className="p-0">
-                <Table hover responsive>
+                <Table hover responsive className="mac-table">
                   <thead className="bg-light">
                     <tr>
                       <th>ID</th>
@@ -305,10 +324,10 @@ const Dashboard = () => {
           </Col>
 
           <Col lg={6}>
-            <Card className="shadow-sm border-0">
-              <Card.Header className="bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+            <Card className="shadow-sm border-0 glass-card slide-in">
+              <Card.Header className="bg-transparent border-0 py-3 d-flex justify-content-between align-items-center">
                 <h5 className="mb-0">Notifications Récentes</h5>
-                <Button variant="outline-primary" size="sm" className="hover-lift">
+                <Button variant="outline-primary" size="sm" className="hover-lift mac-btn">
                   Voir tout
                 </Button>
               </Card.Header>
@@ -317,7 +336,9 @@ const Dashboard = () => {
                   {notifications.slice(0, 5).map((notification) => (
                     <div
                       key={notification.id}
-                      className={`list-group-item list-group-item-action ${notification.read ? "bg-light" : ""}`}
+                      className={`list-group-item list-group-item-action border-0 ${
+                        notification.read ? "bg-light bg-opacity-50" : ""
+                      }`}
                     >
                       <div className="d-flex w-100 justify-content-between">
                         <h6 className="mb-1">{notification.title}</h6>
@@ -330,7 +351,7 @@ const Dashboard = () => {
                     </div>
                   ))}
                   {notifications.length === 0 && (
-                    <div className="list-group-item text-center py-3">Aucune notification</div>
+                    <div className="list-group-item text-center py-3 border-0">Aucune notification</div>
                   )}
                 </div>
               </Card.Body>
