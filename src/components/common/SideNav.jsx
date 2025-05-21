@@ -40,7 +40,7 @@ const SideNav = () => {
       className="h-100 d-flex flex-column mac-sidebar"
       style={{
         width: "220px",
-        backgroundColor: "rgba(255, 200, 210, 0.85)",
+        backgroundColor: "rgba(0, 0, 0, 0.28)",
         backdropFilter: "blur(20px)",
         position: "fixed",
         overflowY: "auto",
@@ -49,13 +49,13 @@ const SideNav = () => {
       }}
     >
       {/* Traffic light buttons */}
-      <div className="d-flex p-2 ps-3 align-items-center">
+      {/* <div className="d-flex p-2 ps-3 align-items-center">
         <div className="traffic-light red me-1"></div>
         <div className="traffic-light yellow me-1"></div>
         <div className="traffic-light green"></div>
-      </div>
+      </div> */}
 
-      <div className="p-3 border-bottom" style={{ borderColor: "rgba(0,0,0,0.1) !important" }}>
+      <div className="p-3 " style={{ borderColor: "rgba(0,0,0,0.1) !important" }}>
         <h6 className="mb-0 text-dark fw-bold">Favoris</h6>
       </div>
 

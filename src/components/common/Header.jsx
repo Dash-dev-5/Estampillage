@@ -8,14 +8,24 @@ import { Link } from "react-router-dom"
 const Header = ({ toggleSidebar }) => {
   const { user } = useSelector((state) => state.auth)
   const { unreadCount } = useSelector((state) => state.notification)
+  // const [sidebarVisible, setSidebarVisible] = useState(toggleSidebar)
 
   return (
-    <Navbar bg="white" className="border-bottom shadow-sm py-2">
+    <Navbar bg="white" className="border-bottom shadow-sm br-40 py-2 rounded-2xl"
+     style={{
+    border: '1px solid #ddd',
+    boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
+    borderRadius: '10px',
+    paddingTop: '0.5rem',
+    paddingBottom: '0.5rem',
+    marginBottom:12
+  }}
+    >
       <Container fluid className="px-3">
-        <Button variant="light" className="d-md-none me-2 border-0" onClick={toggleSidebar}>
+
+        <Button variant="light" className="d-flex align-items-center" onClick={toggleSidebar}>
           <List size={24} />
         </Button>
-
         <Navbar.Brand as={Link} to="/dashboard" className="d-flex align-items-center">
           <img src="/logo.png" alt="Logo" height="30" className="d-none d-md-inline-block me-2" />
           <span className="d-none d-md-inline-block">{import.meta.env.REACT_APP_NAME || "ESTAMPILLAGE"}</span>

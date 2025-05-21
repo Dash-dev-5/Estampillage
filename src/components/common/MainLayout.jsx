@@ -16,21 +16,21 @@ const MainLayout = ({ children }) => {
   const { loading } = useSelector((state) => state.auth)
 
   const toggleSidebar = () => {
-    setSidebarVisible(!sidebarVisible)
+    setSidebarVisible(e => !e)
   }
 
   useEffect(() => {
     const handleResize = () => {
       const mobile = window.innerWidth < 992
-      setIsMobile(mobile)
-      if (mobile && sidebarVisible) {
+      // setIsMobile(mobile)
+      if (sidebarVisible) {
         setSidebarVisible(false)
-      } else if (!mobile && !sidebarVisible) {
+      } else if (!sidebarVisible) {
         setSidebarVisible(true)
       }
     }
 
-    handleResize()
+    // handleResize()
     window.addEventListener("resize", handleResize)
 
     return () => {
@@ -44,7 +44,7 @@ const MainLayout = ({ children }) => {
 
   return (
     <div className="main-layout">
-      {sidebarVisible && <SideNav />}
+      {sidebarVisible ? <SideNav /> : (<> </>)}
 
       <div className="main-content" style={{ marginLeft: sidebarVisible && !isMobile ? "250px" : "0" }}>
         <Header toggleSidebar={toggleSidebar} />

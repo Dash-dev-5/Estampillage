@@ -8,7 +8,7 @@
   --info-color: #5ac8fa;
   --light-color: #f8f9fa;
   --dark-color: #1d1d1f;
-  --mac-bg: rgba(255, 255, 255, 0.7);
+  --mac-bg: rgba(0, 0, 0, 0.361);
   --mac-border: rgba(209, 213, 219, 0.3);
   --mac-shadow: rgba(0, 0, 0, 0.05);
   --mac-card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
@@ -151,7 +151,7 @@ body {
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+  background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.304), transparent);
 }
 
 .glass-card:hover {
