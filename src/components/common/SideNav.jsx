@@ -46,6 +46,7 @@ const SideNav = () => {
         overflowY: "auto",
         zIndex: 1000,
         borderRight: "1px solid rgba(0,0,0,0.1)",
+        height:`90vh`
       }}
     >
       {/* Traffic light buttons */}

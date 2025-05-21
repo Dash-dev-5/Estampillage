@@ -1,7 +1,7 @@
 import { createStore, applyMiddleware, combineReducers } from "redux"
 import { thunk } from "redux-thunk"
-import { composeWithDevTools } from "redux-devtools-extension"
-
+// import { composeWithDevTools } from "redux-devtools-extension"
+import { configureStore } from '@reduxjs/toolkit';
 import authReducer from "./reducers/authReducer"
 import declarationReducer from "./reducers/declarationReducer"
 import perceptionReducer from "./reducers/perceptionReducer"
@@ -26,6 +26,10 @@ const rootReducer = combineReducers({
   ui: uiReducer,
 })
 
-const store = createStore(rootReducer, composeWithDevTools(applyMiddleware(thunk)))
+const store = configureStore({
+  reducer: rootReducer,
+  // Pas besoin de redux-devtools-extension ici
+  devTools: import.meta.env.NODE_ENV !== 'production',
+});
 
 export default store
