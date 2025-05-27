@@ -84,7 +84,7 @@ const AuditLog = () => {
   }
 
   return (
-    <MainLayout>
+    <>
       <div className="animate__animated animate__fadeIn">
         <PageTitle
           title="Journal d'Activité"
@@ -186,7 +186,7 @@ const AuditLog = () => {
           </div>
         </Card>
       </div>
-    </MainLayout>
+    </>
   )
 }
 

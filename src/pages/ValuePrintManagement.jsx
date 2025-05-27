@@ -1,518 +1,390 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { Row, Col, Card, Button, Table, Form, Badge, Modal, Alert } from "react-bootstrap"
 import { useSelector } from "react-redux"
 import {
-  Card,
-  Row,
-  Col,
-  Form,
-  Button,
-  Table,
-  Modal,
-  Alert,
-  InputGroup,
-  Badge,
-  Spinner,
-  Dropdown,
-} from "react-bootstrap"
-import {
-  FileEarmarkRuled,
-  Search,
-  Plus,
   Printer,
-  Eye,
-  ThreeDots,
-  CheckCircle,
-  XCircle,
-  ExclamationTriangle,
+  PlusCircle,
+  FileEarmarkCheck,
+  FileEarmarkX,
+  ArrowClockwise,
+  FileEarmarkRuled,
 } from "react-bootstrap-icons"
-import MainLayout from "../components/common/MainLayout"
 import PageTitle from "../components/common/PageTitle"
-import { toast } from "react-toastify"
-import { isAdmin, isDG } from "../utils/permissions"
 
-// Simulated data for value prints
-const initialValuePrints = [
-  {
-    id: 1,
-    valueNumber: "VN-00001",
-    status: "used",
-    createdAt: "2023-01-10T08:30:00Z",
-    createdBy: 1,
-    usedAt: "2023-01-15T10:45:00Z",
-    usedBy: 2,
-    perceptionId: 2,
-  },
-  {
-    id: 2,
-    valueNumber: "VN-00002",
-    status: "used",
-    createdAt: "2023-01-10T08:31:00Z",
-    createdBy: 1,
-    usedAt: "2023-02-22T14:20:00Z",
-    usedBy: 3,
-    perceptionId: 5,
-  },
-  {
-    id: 3,
-    valueNumber: "VN-00003",
-    status: "available",
-    createdAt: "2023-01-10T08:32:00Z",
-    createdBy: 1,
-    usedAt: null,
-    usedBy: null,
-    perceptionId: null,
-  },
+// Données simulées pour les imprimés de valeur
+const mockValuePrints = [
+  { id: 1, number: "VP-2023-0001", status: "available", createdAt: "2023-01-15", usedAt: null, usedBy: null },
+  { id: 2, number: "VP-2023-0002", status: "available", createdAt: "2023-01-15", usedAt: null, usedBy: null },
+  { id: 3, number: "VP-2023-0003", status: "used", createdAt: "2023-01-15", usedAt: "2023-02-10", usedBy: "John Doe" },
   {
     id: 4,
-    valueNumber: "VN-00004",
-    status: "available",
-    createdAt: "2023-01-10T08:33:00Z",
-    createdBy: 1,
-    usedAt: null,
-    usedBy: null,
-    perceptionId: null,
-  },
-  {
-    id: 5,
-    valueNumber: "VN-00005",
+    number: "VP-2023-0004",
     status: "used",
-    createdAt: "2023-01-10T08:34:00Z",
-    createdBy: 1,
-    usedAt: "2023-03-05T09:15:00Z",
-    usedBy: 2,
-    perceptionId: 8,
+    createdAt: "2023-01-15",
+    usedAt: "2023-02-12",
+    usedBy: "Jane Smith",
   },
+  { id: 5, number: "VP-2023-0005", status: "available", createdAt: "2023-01-15", usedAt: null, usedBy: null },
+  { id: 6, number: "VP-2023-0006", status: "available", createdAt: "2023-01-15", usedAt: null, usedBy: null },
+  { id: 7, number: "VP-2023-0007", status: "available", createdAt: "2023-01-15", usedAt: null, usedBy: null },
   {
-    id: 6,
-    valueNumber: "VN-00006",
-    status: "available",
-    createdAt: "2023-02-15T10:30:00Z",
-    createdBy: 3,
-    usedAt: null,
-    usedBy: null,
-    perceptionId: null,
+    id: 8,
+    number: "VP-2023-0008",
+    status: "used",
+    createdAt: "2023-01-15",
+    usedAt: "2023-03-05",
+    usedBy: "Mike Johnson",
   },
-  {
-    id: 7,
-    valueNumber: "VN-00007",
-    status: "available",
-    createdAt: "2023-02-15T10:31:00Z",
-    createdBy: 3,
-    usedAt: null,
-    usedBy: null,
-    perceptionId: null,
-  },
+  { id: 9, number: "VP-2023-0009", status: "available", createdAt: "2023-01-15", usedAt: null, usedBy: null },
+  { id: 10, number: "VP-2023-0010", status: "available", createdAt: "2023-01-15", usedAt: null, usedBy: null },
 ]
 
 const ValuePrintManagement = () => {
+  const [valuePrints, setValuePrints] = useState([])
+  const [filteredPrints, setFilteredPrints] = useState([])
+  const [filter, setFilter] = useState("all")
+  const [searchTerm, setSearchTerm] = useState("")
+  const [showGenerateModal, setShowGenerateModal] = useState(false)
+  const [generateCount, setGenerateCount] = useState(10)
+  const [showPrintModal, setShowPrintModal] = useState(false)
+  const [selectedPrints, setSelectedPrints] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [success, setSuccess] = useState("")
+
   const { user } = useSelector((state) => state.auth)
 
-  // State
-  const [valuePrints, setValuePrints] = useState([])
-  const [filter, setFilter] = useState("")
-  const [statusFilter, setStatusFilter] = useState("")
-  const [showCreateModal, setShowCreateModal] = useState(false)
-  const [showViewModal, setShowViewModal] = useState(false)
-  const [selectedValuePrint, setSelectedValuePrint] = useState(null)
-  const [loading, setLoading] = useState(false)
-  const [quantity, setQuantity] = useState(1)
-  const [startNumber, setStartNumber] = useState("")
+  useEffect(() => {
+    // Simuler le chargement des données
+    setTimeout(() => {
+      setValuePrints(mockValuePrints)
+      setFilteredPrints(mockValuePrints)
+      setLoading(false)
+    }, 1000)
+  }, [])
 
   useEffect(() => {
-    // Filter value prints based on user role
-    if (isAdmin(user) || isDG(user)) {
-      // Admins and DG can see all value prints
-      setValuePrints(initialValuePrints)
-    } else {
-      // OPGs can only see their own value prints
-      const filteredValuePrints = initialValuePrints.filter((vp) => vp.createdBy === user.id || vp.usedBy === user.id)
-      setValuePrints(filteredValuePrints)
+    let result = [...valuePrints]
+
+    // Appliquer le filtre de statut
+    if (filter !== "all") {
+      result = result.filter((print) => print.status === filter)
     }
-  }, [user])
 
-  const handleViewModalOpen = (valuePrint) => {
-    setSelectedValuePrint(valuePrint)
-    setShowViewModal(true)
-  }
+    // Appliquer la recherche
+    if (searchTerm) {
+      result = result.filter(
+        (print) =>
+          print.number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (print.usedBy && print.usedBy.toLowerCase().includes(searchTerm.toLowerCase())),
+      )
+    }
 
-  const handleCreateValuePrints = () => {
+    setFilteredPrints(result)
+  }, [valuePrints, filter, searchTerm])
+
+  const handleGenerateValuePrints = () => {
     setLoading(true)
 
+    // Simuler la génération de nouveaux imprimés
     setTimeout(() => {
-      // Validate inputs
-      if (!startNumber) {
-        toast.error("Veuillez entrer un numéro de départ.")
-        setLoading(false)
-        return
-      }
+      const newPrints = []
+      const lastId = valuePrints.length > 0 ? Math.max(...valuePrints.map((p) => p.id)) : 0
 
-      // Generate new value prints
-      const newValuePrints = []
-      const lastId = valuePrints.length > 0 ? Math.max(...valuePrints.map((vp) => vp.id)) : 0
+      for (let i = 1; i <= generateCount; i++) {
+        const id = lastId + i
+        const number = `VP-2023-${String(id).padStart(4, "0")}`
 
-      for (let i = 0; i < quantity; i++) {
-        const newId = lastId + i + 1
-        const newValueNumber = `VN-${(Number.parseInt(startNumber) + i).toString().padStart(5, "0")}`
-
-        newValuePrints.push({
-          id: newId,
-          valueNumber: newValueNumber,
+        newPrints.push({
+          id,
+          number,
           status: "available",
-          createdAt: new Date().toISOString(),
-          createdBy: user.id,
+          createdAt: new Date().toISOString().split("T")[0],
           usedAt: null,
           usedBy: null,
-          perceptionId: null,
         })
       }
 
-      setValuePrints([...valuePrints, ...newValuePrints])
-      setShowCreateModal(false)
+      setValuePrints([...valuePrints, ...newPrints])
+      setShowGenerateModal(false)
+      setGenerateCount(10)
       setLoading(false)
-      setQuantity(1)
-      setStartNumber("")
+      setSuccess(`${generateCount} nouveaux imprimés de valeur ont été générés avec succès.`)
 
-      toast.success(
-        `${quantity} imprimé${quantity > 1 ? "s" : ""} de valeur créé${quantity > 1 ? "s" : ""} avec succès.`,
-      )
-    }, 1000)
+      setTimeout(() => {
+        setSuccess("")
+      }, 3000)
+    }, 1500)
   }
 
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case "available":
-        return (
-          <Badge bg="success" className="d-flex align-items-center mac-badge">
-            <CheckCircle className="me-1" /> Disponible
-          </Badge>
-        )
-      case "used":
-        return (
-          <Badge bg="secondary" className="d-flex align-items-center mac-badge">
-            <XCircle className="me-1" /> Utilisé
-          </Badge>
-        )
-      default:
-        return (
-          <Badge bg="secondary" className="mac-badge">
-            Inconnu
-          </Badge>
-        )
+  const handlePrintSelected = () => {
+    // Simuler l'impression
+    console.log("Impression des imprimés sélectionnés:", selectedPrints)
+    setShowPrintModal(false)
+    setSelectedPrints([])
+    setSuccess("Les imprimés sélectionnés ont été envoyés à l'impression.")
+
+    setTimeout(() => {
+      setSuccess("")
+    }, 3000)
+  }
+
+  const toggleSelectPrint = (id) => {
+    if (selectedPrints.includes(id)) {
+      setSelectedPrints(selectedPrints.filter((printId) => printId !== id))
+    } else {
+      setSelectedPrints([...selectedPrints, id])
     }
   }
 
-  const filteredValuePrints = valuePrints.filter((valuePrint) => {
-    const matchesFilter =
-      valuePrint.valueNumber.toLowerCase().includes(filter.toLowerCase()) || valuePrint.id.toString().includes(filter)
-
-    const matchesStatus = !statusFilter || valuePrint.status === statusFilter
-
-    return matchesFilter && matchesStatus
-  })
+  const getStatusBadge = (status) => {
+    if (status === "available") {
+      return <Badge bg="success">Disponible</Badge>
+    } else if (status === "used") {
+      return <Badge bg="secondary">Utilisé</Badge>
+    }
+    return <Badge bg="light">Inconnu</Badge>
+  }
 
   return (
-    <MainLayout>
-      <div className="animate__animated animate__fadeIn">
-        <PageTitle
-          title="Gestion des Imprimés de Valeur"
-          subtitle="Créez et gérez les imprimés de valeur pour les notes de perception"
-          icon={<FileEarmarkRuled className="me-2" size={24} />}
-        />
+    <div className="fade-in">
+      <PageTitle
+        title="Gestion des Imprimés de Valeur"
+        description="Générez, suivez et imprimez les imprimés de valeur pour les notes de perception."
+      />
 
-        <Card className="shadow-sm border-0 mb-4 glass-card scale-in">
-          <Card.Body>
-            <Row className="g-3 align-items-center">
-              <Col md={6} lg={4}>
-                <InputGroup>
-                  <InputGroup.Text className="bg-transparent border-end-0">
-                    <Search />
-                  </InputGroup.Text>
-                  <Form.Control
-                    type="text"
-                    placeholder="Rechercher par ID ou numéro de valeur..."
-                    value={filter}
-                    onChange={(e) => setFilter(e.target.value)}
-                    className="glass-input border-start-0"
-                  />
-                </InputGroup>
-              </Col>
-              <Col md={6} lg={3}>
-                <Form.Select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="glass-input"
-                >
-                  <option value="">Tous les statuts</option>
-                  <option value="available">Disponible</option>
-                  <option value="used">Utilisé</option>
-                </Form.Select>
-              </Col>
-              <Col lg={5} className="ms-auto text-end">
-                <Button variant="outline-secondary" className="me-2 hover-lift mac-btn">
-                  <Printer className="me-1" /> Imprimer la liste
-                </Button>
-                <Button
-                  variant="primary"
-                  className="hover-lift mac-btn mac-btn-primary"
-                  onClick={() => setShowCreateModal(true)}
-                >
-                  <Plus className="me-1" /> Créer des imprimés
-                </Button>
-              </Col>
-            </Row>
-          </Card.Body>
-        </Card>
+      {success && (
+        <Alert variant="success" className="glass-alert mb-4">
+          {success}
+        </Alert>
+      )}
 
-        <Row className="mb-4">
-          <Col md={3}>
-            <Card className="shadow-sm border-0 glass-card dashboard-card slide-in">
-              <Card.Body className="p-4">
-                <h3 className="mb-0">{valuePrints.filter((vp) => vp.status === "available").length}</h3>
-                <p className="text-muted mb-0">Imprimés disponibles</p>
-                <div className="icon-bg">
-                  <CheckCircle />
-                </div>
-              </Card.Body>
-            </Card>
-          </Col>
-          <Col md={3}>
-            <Card className="shadow-sm border-0 glass-card dashboard-card slide-in">
-              <Card.Body className="p-4">
-                <h3 className="mb-0">{valuePrints.filter((vp) => vp.status === "used").length}</h3>
-                <p className="text-muted mb-0">Imprimés utilisés</p>
-                <div className="icon-bg">
-                  <XCircle />
-                </div>
-              </Card.Body>
-            </Card>
-          </Col>
-          <Col md={3}>
-            <Card className="shadow-sm border-0 glass-card dashboard-card slide-in">
-              <Card.Body className="p-4">
-                <h3 className="mb-0">{valuePrints.length}</h3>
-                <p className="text-muted mb-0">Total des imprimés</p>
-                <div className="icon-bg">
-                  <FileEarmarkRuled />
-                </div>
-              </Card.Body>
-            </Card>
-          </Col>
-          <Col md={3}>
-            <Card className="shadow-sm border-0 glass-card dashboard-card slide-in">
-              <Card.Body className="p-4">
-                <h3 className="mb-0">
-                  {Math.round((valuePrints.filter((vp) => vp.status === "used").length / valuePrints.length) * 100) ||
-                    0}
-                  %
-                </h3>
-                <p className="text-muted mb-0">Taux d'utilisation</p>
-                <div className="icon-bg">
-                  <Printer />
-                </div>
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
+      <Row className="mb-4">
+        <Col md={6} lg={3} className="mb-3">
+          <Card className="glass-card metric-card">
+            <Card.Body className="d-flex flex-column align-items-center justify-content-center">
+              <div className="metric-value">
+                <FileEarmarkCheck size={40} />
+              </div>
+              <h2 className="fw-bold metric-value">{valuePrints.filter((p) => p.status === "available").length}</h2>
+              <p className="metric-subtitle mb-0">Imprimés disponibles</p>
+            </Card.Body>
+          </Card>
+        </Col>
 
-        <Card className="shadow-sm border-0 glass-card slide-in">
-          <div className="table-responsive">
-            <Table hover className="mb-0 mac-table">
-              <thead className="bg-light">
-                <tr>
-                  <th>ID</th>
-                  <th>Numéro de Valeur</th>
-                  <th>Status</th>
-                  <th>Créé le</th>
-                  <th>Créé par</th>
-                  <th>Utilisé le</th>
-                  <th>Utilisé par</th>
-                  <th>Note de Perception</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredValuePrints.length === 0 ? (
-                  <tr>
-                    <td colSpan={9} className="text-center py-4">
-                      Aucun imprimé de valeur trouvé
-                    </td>
-                  </tr>
-                ) : (
-                  filteredValuePrints.map((valuePrint) => (
-                    <tr key={valuePrint.id} className="align-middle hover-lift">
-                      <td>#{valuePrint.id}</td>
-                      <td>
-                        <span className="value-print-number">{valuePrint.valueNumber}</span>
-                      </td>
-                      <td>{getStatusBadge(valuePrint.status)}</td>
-                      <td>{new Date(valuePrint.createdAt).toLocaleDateString()}</td>
-                      <td>Utilisateur #{valuePrint.createdBy}</td>
-                      <td>{valuePrint.usedAt ? new Date(valuePrint.usedAt).toLocaleDateString() : "-"}</td>
-                      <td>{valuePrint.usedBy ? `Utilisateur #${valuePrint.usedBy}` : "-"}</td>
-                      <td>{valuePrint.perceptionId ? `#${valuePrint.perceptionId}` : "-"}</td>
-                      <td>
-                        <Dropdown align="end">
-                          <Dropdown.Toggle as={Button} variant="light" size="sm" className="border-0 mac-btn-sm">
-                            <ThreeDots />
-                          </Dropdown.Toggle>
-                          <Dropdown.Menu>
-                            <Dropdown.Item onClick={() => handleViewModalOpen(valuePrint)}>
-                              <Eye className="me-2" /> Voir les détails
-                            </Dropdown.Item>
-                            {valuePrint.status === "available" && (
-                              <Dropdown.Item>
-                                <Printer className="me-2" /> Imprimer
-                              </Dropdown.Item>
-                            )}
-                          </Dropdown.Menu>
-                        </Dropdown>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </Table>
+        <Col md={6} lg={3} className="mb-3">
+          <Card className="glass-card metric-card">
+            <Card.Body className="d-flex flex-column align-items-center justify-content-center">
+              <div className=" metric-value">
+                <FileEarmarkX size={40} />
+              </div>
+              <h2 className=" mb-0 fw-bold metric-value">{valuePrints.filter((p) => p.status === "used").length}</h2>
+              <p className="metric-subtitle mb-0">Imprimés utilisés</p>
+            </Card.Body>
+          </Card>
+        </Col>
+
+        <Col md={6} lg={3} className="mb-3">
+          <Card className="glass-card  metric-card">
+            <Card.Body className="d-flex flex-column align-items-center justify-content-center">
+              <div className="metric-value">
+                <FileEarmarkRuled size={40} />
+              </div>
+              <h2 className="mb-0 fw-bold metric-value">{valuePrints.length}</h2>
+              <p className="mb-0 metric-subtitle">Total des imprimés</p>
+            </Card.Body>
+          </Card>
+        </Col>
+
+        <Col md={6} lg={3} className="mb-3">
+          <Card className="glass-card metric-card">
+            <Card.Body className="d-flex flex-column align-items-center justify-content-center">
+              <Button
+                variant="primary"
+                className="w-100 h-100 d-flex flex-column align-items-center justify-content-center app-btn app-btn-primary"
+                onClick={() => setShowGenerateModal(true)}
+              >
+                <PlusCircle size={24} className="mb-2" />
+                <span>Générer des imprimés</span>
+              </Button>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+
+      <Card className="glass-card mb-4 metric-card">
+        <Card.Body>
+          <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+            <h5 className="mb-0 metric-title">Liste des imprimés de valeur</h5>
+
+            <div className="d-flex  gap-2 mt-2 mt-md-0">
+              <Form.Select
+                className="glass-input"
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+                style={{ width: "150px" }}
+              >
+                <option value="all">Tous</option>
+                <option value="available">Disponibles</option>
+                <option value="used">Utilisés</option>
+              </Form.Select>
+
+              <Form.Control
+                type="search"
+                placeholder="Rechercher..."
+                className="glass-input"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{ width: "200px" }}
+              />
+
+              <Button
+                variant="outline-primary"
+                className="app-btn"
+                onClick={() => setShowPrintModal(true)}
+                disabled={selectedPrints.length === 0}
+              >
+                <Printer className="me-1" /> Imprimer
+              </Button>
+
+              <Button
+                variant="outline-secondary"
+                className="app-btn"
+                onClick={() => {
+                  setFilter("all")
+                  setSearchTerm("")
+                }}
+              >
+                <ArrowClockwise />
+              </Button>
+            </div>
           </div>
-        </Card>
-      </div>
 
-      {/* Create Modal */}
-      <Modal show={showCreateModal} onHide={() => setShowCreateModal(false)} backdrop="static" className="mac-modal">
+          {loading ? (
+            <div className="text-center chart-container py-5">
+              <div className="app-spinner mx-auto"></div>
+              <p className="mt-3 text-muted">Chargement des imprimés de valeur...</p>
+            </div>
+          ) : filteredPrints.length === 0 ? (
+            <div className="text-center chart-container py-5">
+              <FileEarmarkRuled size={48} className="text-muted mb-3" />
+              <h5>Aucun imprimé de valeur trouvé</h5>
+              <p className="text-muted">Ajustez vos filtres ou générez de nouveaux imprimés.</p>
+            </div>
+          ) : (
+            <div className="table-responsive">
+              <Table className=" chart-container mb-0">
+                <thead>
+                  <tr>
+                    <th style={{ width: "40px" }}>
+                      <Form.Check
+                        type="checkbox"
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedPrints(filteredPrints.filter((p) => p.status === "available").map((p) => p.id))
+                          } else {
+                            setSelectedPrints([])
+                          }
+                        }}
+                        checked={
+                          filteredPrints.filter((p) => p.status === "available").length > 0 &&
+                          filteredPrints
+                            .filter((p) => p.status === "available")
+                            .every((p) => selectedPrints.includes(p.id))
+                        }
+                      />
+                    </th>
+                    <th>Numéro</th>
+                    <th>Statut</th>
+                    <th>Date de création</th>
+                    <th>Date d'utilisation</th>
+                    <th>Utilisé par</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredPrints.map((print) => (
+                    <tr key={print.id}>
+                      <td>
+                        {print.status === "available" && (
+                          <Form.Check
+                            type="checkbox"
+                            checked={selectedPrints.includes(print.id)}
+                            onChange={() => toggleSelectPrint(print.id)}
+                          />
+                        )}
+                      </td>
+                      <td>
+                        <span className="value-print-number">{print.number}</span>
+                      </td>
+                      <td>{getStatusBadge(print.status)}</td>
+                      <td>{print.createdAt}</td>
+                      <td>{print.usedAt || "-"}</td>
+                      <td>{print.usedBy || "-"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </div>
+          )}
+        </Card.Body>
+      </Card>
+
+      {/* Modal pour générer des imprimés */}
+      <Modal show={showGenerateModal} onHide={() => setShowGenerateModal(false)} centered className="mac-modal">
         <Modal.Header closeButton>
-          <Modal.Title>Créer des Imprimés de Valeur</Modal.Title>
+          <Modal.Title>Générer des imprimés de valeur</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form.Group className="mb-3">
-            <Form.Label>Quantité</Form.Label>
+            <Form.Label>Nombre d'imprimés à générer</Form.Label>
             <Form.Control
               type="number"
               min="1"
               max="100"
-              value={quantity}
-              onChange={(e) => setQuantity(Math.max(1, Math.min(100, Number.parseInt(e.target.value) || 1)))}
+              value={generateCount}
+              onChange={(e) => setGenerateCount(Number.parseInt(e.target.value) || 1)}
               className="glass-input"
             />
-            <Form.Text className="text-muted">Nombre d'imprimés de valeur à créer (maximum 100 à la fois).</Form.Text>
+            <Form.Text className="text-muted">Vous pouvez générer jusqu'à 100 imprimés à la fois.</Form.Text>
           </Form.Group>
-
-          <Form.Group className="mb-3">
-            <Form.Label>Numéro de départ</Form.Label>
-            <Form.Control
-              type="number"
-              min="1"
-              placeholder="Ex: 1"
-              value={startNumber}
-              onChange={(e) => setStartNumber(e.target.value)}
-              className="glass-input"
-            />
-            <Form.Text className="text-muted">
-              Le numéro à partir duquel les imprimés seront générés (VN-00001, VN-00002, etc.).
-            </Form.Text>
-          </Form.Group>
-
-          <Alert variant="info" className="d-flex align-items-center glass-alert">
-            <ExclamationTriangle className="me-2" />
-            <div>
-              Les imprimés de valeur seront générés avec des numéros séquentiels à partir du numéro de départ spécifié.
-            </div>
-          </Alert>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowCreateModal(false)} className="mac-btn">
+          <Button variant="secondary" onClick={() => setShowGenerateModal(false)} className="app-btn">
             Annuler
           </Button>
           <Button
             variant="primary"
-            onClick={handleCreateValuePrints}
-            disabled={loading || !startNumber}
-            className="d-flex align-items-center mac-btn mac-btn-primary"
+            onClick={handleGenerateValuePrints}
+            className="app-btn app-btn-primary"
+            disabled={loading}
           >
-            {loading ? (
-              <>
-                <Spinner animation="border" size="sm" className="me-2" /> Création...
-              </>
-            ) : (
-              <>
-                <Plus className="me-2" /> Créer
-              </>
-            )}
+            {loading ? "Génération en cours..." : "Générer"}
           </Button>
         </Modal.Footer>
       </Modal>
 
-      {/* View Modal */}
-      <Modal show={showViewModal} onHide={() => setShowViewModal(false)} className="mac-modal">
+      {/* Modal pour imprimer des imprimés */}
+      <Modal show={showPrintModal} onHide={() => setShowPrintModal(false)} centered className="mac-modal">
         <Modal.Header closeButton>
-          <Modal.Title>Détails de l'Imprimé de Valeur</Modal.Title>
+          <Modal.Title>Imprimer les imprimés de valeur</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {selectedValuePrint && (
-            <>
-              <div className="text-center mb-4">
-                <h2 className="value-print-number">{selectedValuePrint.valueNumber}</h2>
-                <div>{getStatusBadge(selectedValuePrint.status)}</div>
-              </div>
-
-              <Row className="mb-3">
-                <Col md={6}>
-                  <p className="mb-1 text-muted">ID</p>
-                  <h5>#{selectedValuePrint.id}</h5>
-                </Col>
-                <Col md={6}>
-                  <p className="mb-1 text-muted">Date de Création</p>
-                  <h5>{new Date(selectedValuePrint.createdAt).toLocaleString()}</h5>
-                </Col>
-              </Row>
-
-              <Row className="mb-3">
-                <Col md={6}>
-                  <p className="mb-1 text-muted">Créé par</p>
-                  <h5>Utilisateur #{selectedValuePrint.createdBy}</h5>
-                </Col>
-                <Col md={6}>
-                  <p className="mb-1 text-muted">Status</p>
-                  <h5>{getStatusBadge(selectedValuePrint.status)}</h5>
-                </Col>
-              </Row>
-
-              {selectedValuePrint.status === "used" && (
-                <>
-                  <Row className="mb-3">
-                    <Col md={6}>
-                      <p className="mb-1 text-muted">Utilisé le</p>
-                      <h5>{new Date(selectedValuePrint.usedAt).toLocaleString()}</h5>
-                    </Col>
-                    <Col md={6}>
-                      <p className="mb-1 text-muted">Utilisé par</p>
-                      <h5>Utilisateur #{selectedValuePrint.usedBy}</h5>
-                    </Col>
-                  </Row>
-
-                  <Row className="mb-3">
-                    <Col md={12}>
-                      <p className="mb-1 text-muted">Note de Perception</p>
-                      <h5>#{selectedValuePrint.perceptionId}</h5>
-                    </Col>
-                  </Row>
-                </>
-              )}
-            </>
-          )}
+          <p>Vous êtes sur le point d'imprimer {selectedPrints.length} imprimé(s) de valeur.</p>
+          <Alert variant="info" className="glass-alert">
+            <strong>Note:</strong> Assurez-vous que l'imprimante est connectée et prête à imprimer.
+          </Alert>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowViewModal(false)} className="mac-btn">
-            Fermer
+          <Button variant="secondary" onClick={() => setShowPrintModal(false)} className="app-btn">
+            Annuler
           </Button>
-          {selectedValuePrint && selectedValuePrint.status === "available" && (
-            <Button variant="primary" className="mac-btn mac-btn-primary">
-              <Printer className="me-1" /> Imprimer
-            </Button>
-          )}
+          <Button variant="primary" onClick={handlePrintSelected} className="app-btn app-btn-primary">
+            <Printer className="me-1" /> Imprimer
+          </Button>
         </Modal.Footer>
       </Modal>
-    </MainLayout>
+    </div>
   )
 }
 

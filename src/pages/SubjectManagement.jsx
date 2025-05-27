@@ -117,7 +117,7 @@ const SubjectManagement = () => {
   )
 
   return (
-    <MainLayout>
+    <>
       <div className="animate__animated animate__fadeIn">
         <PageTitle
           title="Gestion des Assujettis"
@@ -564,7 +564,7 @@ const SubjectManagement = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-    </MainLayout>
+    </>
   )
 }
 

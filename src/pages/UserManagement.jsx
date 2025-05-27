@@ -172,7 +172,7 @@ const UserManagement = () => {
   }
 
   return (
-    <MainLayout>
+    <>
       <div className="animate__animated animate__fadeIn">
         <PageTitle
           title="Gestion des Utilisateurs"
@@ -650,7 +650,7 @@ const UserManagement = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-    </MainLayout>
+    </>
   )
 }
 

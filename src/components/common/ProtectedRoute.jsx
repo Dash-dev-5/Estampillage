@@ -1,15 +1,34 @@
-import { useSelector } from "react-redux"
-import { Navigate } from "react-router-dom"
+"use client"
+
+import { useEffect } from "react"
+import { useSelector, useDispatch } from "react-redux"
+import { useNavigate } from "react-router-dom"
+import LoadingScreen from "./LoadingScreen"
+import { checkAuthStatus } from "../../redux/actions/authActions"
 
 const ProtectedRoute = ({ children }) => {
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
   const { isAuthenticated, loading } = useSelector((state) => state.auth)
 
+  useEffect(() => {
+    if (!isAuthenticated && !loading) {
+      dispatch(checkAuthStatus())
+    }
+  }, [dispatch, isAuthenticated, loading])
+
+  useEffect(() => {
+    if (!loading && !isAuthenticated) {
+      navigate("/login")
+    }
+  }, [isAuthenticated, loading, navigate])
+
   if (loading) {
-    return null // This will be handled by the LoadingScreen in App.js
+    return <LoadingScreen />
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />
+    return null
   }
 
   return children

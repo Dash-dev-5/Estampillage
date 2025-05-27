@@ -1,67 +1,97 @@
-"use client"
-
+import { Search, Bell, Gear } from "react-bootstrap-icons"
 import { useSelector } from "react-redux"
-import { Container, Navbar, Nav, Button } from "react-bootstrap"
-import { List, Bell } from "react-bootstrap-icons"
-import { Link } from "react-router-dom"
+import ThemeToggle from "./ThemeToggle"
+import NotificationDropdown from "./NotificationDropdown"
 
-const Header = ({ toggleSidebar }) => {
+const Header = () => {
   const { user } = useSelector((state) => state.auth)
-  const { unreadCount } = useSelector((state) => state.notification)
-  // const [sidebarVisible, setSidebarVisible] = useState(toggleSidebar)
 
   return (
-    <Navbar bg="white" className="border-bottom shadow-sm br-40 py-2 rounded-2xl"
-     style={{
-    border: '1px solid #ddd',
-    boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
-    borderRadius: '10px',
-    paddingTop: '0.5rem',
-    paddingBottom: '0.5rem',
-    marginBottom:12
-  }}
-    >
-      <Container fluid className="px-3">
+    <header className="app-header">
+      <div className="header-left">
+        <button className="header-action d-md-none" onClick={() => setSidebarOpen(!sidebarOpen)} title="Menu">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+        </button>
 
-        <Button variant="light" className="d-flex align-items-center" onClick={toggleSidebar}>
-          <List size={24} />
-        </Button>
-        <Navbar.Brand as={Link} to="/dashboard" className="d-flex align-items-center">
-          <img src="/logo.png" alt="Logo" height="30" className="d-none d-md-inline-block me-2" />
-          <span className="d-none d-md-inline-block">{import.meta.env.REACT_APP_NAME || "ESTAMPILLAGE"}</span>
-        </Navbar.Brand>
+        {/* <div className="app-logo">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+          </svg>
+          ESTAMPILLAGE
+        </div> */}
 
-        <Nav className="ms-auto d-flex align-items-center">
-          <div className="d-md-none me-3 position-relative">
-            <Bell size={20} />
-            {unreadCount > 0 && (
-              <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                {unreadCount}
-              </span>
-            )}
-          </div>
+        <div className="header-search">
+          <Search className="search-icon" size={16} />
+          <input type="search" placeholder="Rechercher dans le système..." className="search-input" />
+        </div>
+      </div>
 
-          <div className="d-flex align-items-center">
-            <div className="me-2 text-end d-none d-md-block">
-              <small className="d-block text-muted">
-                {user?.role === "admin" ? "Administrateur" : user?.role === "dg" ? "Direction Générale" : "OPG"}
-              </small>
-              <span className="fw-bold">
-                {user?.firstName} {user?.lastName}
-              </span>
-            </div>
-            <div
-              className="bg-primary rounded-circle text-white d-flex align-items-center justify-content-center"
-              style={{ width: "40px", height: "40px" }}
-            >
-              {user?.firstName?.[0]}
-              {user?.lastName?.[0]}
+      <div className="header-right">
+      <NotificationDropdown />
+
+        <ThemeToggle />
+
+        <button className="header-action" title="Paramètres">
+          <Gear size={18} />
+        </button>
+
+        <div className="user-profile">
+          <div className="user-avatar">{user?.username?.charAt(0).toUpperCase() || "A"}</div>
+          <div className="user-info">
+            <div className="user-name">{user?.username || "Utilisateur"}</div>
+            <div className="user-role">
+              {user?.role === "admin" && "Administrateur"}
+              {user?.role === "dg" && "Direction Générale"}
+              {user?.role === "opg" && "OPG"}
+              {user?.role === "industry_agent" && "Agent Industrie"}
+              {!user?.role && "Rôle"}
             </div>
           </div>
-        </Nav>
-      </Container>
-    </Navbar>
+        </div>
+      </div>
+    </header> 
   )
+
+  // return (
+  //   <header className="app-header">
+  //     <div className="app-logo">
+  //       <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+  //         <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+  //       </svg>
+  //       {import.meta.env.VITE_APP_NAME || "ESTAMPILLAGE"}
+  //     </div>
+
+  //     <div className="header-search">
+  //       <Search className="search-icon" size={16} />
+  //       <input type="search" placeholder="Rechercher dans le système..." className="search-input" />
+  //     </div>
+
+  //     <div className="header-actions">
+  //       <NotificationDropdown />
+  //       <ThemeToggle />
+
+  //       <button className="header-action" title="Paramètres">
+  //         <Gear size={18} />
+  //       </button>
+
+  //       <div className="user-profile">
+  //         <div className="user-avatar">{user?.username?.charAt(0).toUpperCase() || "U"}</div>
+  //         <div className="user-info">
+  //           <div className="user-name">{user?.username || "Utilisateur"}</div>
+  //           <div className="user-role">
+  //             {user?.role === "admin" && "Administrateur"}
+  //             {user?.role === "dg" && "Direction Générale"}
+  //             {user?.role === "opg" && "OPG"}
+  //             {user?.role === "industry_agent" && "Agent Industrie"}
+  //             {!user?.role && "Rôle"}
+  //           </div>
+  //         </div>
+  //       </div>
+  //     </div>
+  //   </header>
+  // )
 }
 
 export default Header

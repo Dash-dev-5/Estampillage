@@ -217,7 +217,7 @@ const Declaration = () => {
   }
 
   return (
-    <MainLayout>
+    <>
       <div className="animate__animated animate__fadeIn">
         <PageTitle
           title="Gestion des Déclarations"
@@ -229,12 +229,12 @@ const Declaration = () => {
         />
 
         {error && (
-          <Alert variant="danger" className="animate__animated animate__fadeIn glass-alert">
+          <Alert variant="danger" className="animate__animated animate__fadeIn glass-alert metric-card">
             {error}
           </Alert>
         )}
 
-        <Card className="shadow-sm border-0 mb-4 glass-card scale-in">
+        <Card className="shadow-sm border-0 mb-4 glass-card scale-in metric-card">
           <Card.Body>
             <Row className="g-3 align-items-center">
               <Col md={6} lg={4}>
@@ -280,9 +280,9 @@ const Declaration = () => {
           </Card.Body>
         </Card>
 
-        <Card className="shadow-sm border-0 glass-card slide-in">
+        <Card className="shadow-sm border-0 glass-card slide-in metric-card">
           <div className="table-responsive">
-            <Table hover className="mb-0 mac-table">
+            <Table hover className="mb-0 mac-table chart-container">
               <thead className="bg-light">
                 <tr>
                   <th>ID</th>
@@ -662,7 +662,7 @@ const Declaration = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-    </MainLayout>
+    </>
   )
 }
 

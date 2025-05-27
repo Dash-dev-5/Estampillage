@@ -79,7 +79,8 @@ const Archives = () => {
   }
 
   return (
-    <MainLayout>
+    // <MainLayout>
+    <>
       <div className="animate__animated animate__fadeIn">
         <PageTitle
           title="Archives"
@@ -304,7 +305,8 @@ const Archives = () => {
           )}
         </Modal.Footer>
       </Modal>
-    </MainLayout>
+      </>
+    // </MainLayout>
   )
 }
 

@@ -278,7 +278,7 @@ const NotePerception = () => {
   }
 
   return (
-    <MainLayout>
+    <>
       <div className="animate__animated animate__fadeIn">
         <PageTitle
           title="Notes de Perception"
@@ -691,7 +691,7 @@ const NotePerception = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-    </MainLayout>
+    </>
   )
 }
 

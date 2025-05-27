@@ -1,365 +1,227 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { useDispatch, useSelector } from "react-redux"
-import { Row, Col, Card, Table, Alert, Badge, Button } from "react-bootstrap"
-import {
-  CashCoin,
-  FileEarmarkText,
-  PersonBadge,
-  Archive,
-  ExclamationTriangle,
-  ArrowUpRight,
-  Check2Circle,
-  XCircle,
-  Clock,
-  Speedometer2,
-} from "react-bootstrap-icons"
-import MainLayout from "../components/common/MainLayout"
-import PageTitle from "../components/common/PageTitle"
+import { CashCoin, FileEarmarkText, PersonBadge, Archive, BarChart, ArrowRepeat } from "react-bootstrap-icons"
 import { fetchDeclarations } from "../redux/actions/declarationActions"
-import { Chart } from "react-chartjs-2"
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement,
-  Filler,
-} from "chart.js"
-import { Link } from "react-router-dom"
-
-// Register ChartJS components
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, ArcElement, Filler)
+import { useNotifications } from "../hooks/useNotifications"
 
 const Dashboard = () => {
   const dispatch = useDispatch()
   const { user } = useSelector((state) => state.auth)
   const { declarations } = useSelector((state) => state.declaration)
-  const { notifications } = useSelector((state) => state.notification)
-
-  const [revenueStats, setRevenueStats] = useState({
-    labels: ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin", "Juil", "Août", "Sep", "Oct", "Nov", "Déc"],
-    datasets: [
-      {
-        label: "Revenus",
-        data: [30000, 40000, 35000, 50000, 49000, 60000, 70000, 91000, 125000, 150000, 160000, 180000],
-        borderColor: "#0071e3",
-        backgroundColor: "rgba(0, 113, 227, 0.1)",
-        tension: 0.4,
-        fill: true,
-      },
-    ],
-  })
-
-  const [distributionStats, setDistributionStats] = useState({
-    labels: ["Entreprise", "DGRKC", "État"],
-    datasets: [
-      {
-        data: [40, 30, 30],
-        backgroundColor: ["#0071e3", "#6c757d", "#34c759"],
-      },
-    ],
-  })
+  const { showNotification } = useNotifications()
 
   useEffect(() => {
     dispatch(fetchDeclarations())
-
-    // Simulate fetching additional data
-    // This would normally come from API calls
   }, [dispatch])
 
-  // Calculate statistics
-  const totalRevenue = revenueStats.datasets[0].data.reduce((sum, value) => sum + value, 0)
-  const pendingDeclarations = declarations.filter((d) => d.status === "pending").length
-  const approvedDeclarations = declarations.filter((d) => d.status === "approved").length
-  const rejectedDeclarations = declarations.filter((d) => d.status === "rejected").length
-
-  // Charts options
-  const revenueChartOptions = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: "top",
-      },
-      tooltip: {
-        callbacks: {
-          label: (context) => `${context.dataset.label}: ${context.raw.toLocaleString()} FC`,
-        },
-      },
+  // Statistiques réelles de l'estampillage
+  const stats = [
+    {
+      title: "Revenus Total",
+      value: "2,450,000 FC",
+      subtitle: "+12% ce mois",
+      icon: CashCoin,
+      type: "cpu", // Utilise le style CPU pour la couleur cyan
     },
-    scales: {
-      y: {
-        ticks: {
-          callback: (value) => value.toLocaleString() + " FC",
-        },
-      },
+    {
+      title: "Déclarations",
+      value: declarations.length.toString(),
+      subtitle: `${declarations.filter((d) => d.status === "pending").length} en attente`,
+      icon: FileEarmarkText,
+      type: "memory", // Utilise le style memory pour la couleur violette
     },
-  }
-
-  const distributionChartOptions = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: "bottom",
-      },
+    {
+      title: "OPG Actifs",
+      value: "24",
+      subtitle: "3 nouveaux ce mois",
+      icon: PersonBadge,
+      type: "network", // Utilise le style network pour la couleur orange
     },
-  }
+    {
+      title: "Documents Archivés",
+      value: "152",
+      subtitle: "18 cette semaine",
+      icon: Archive,
+      type: "storage", // Utilise le style storage
+    },
+  ]
 
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case "pending":
-        return (
-          <Badge bg="warning" className="mac-badge">
-            <Clock className="me-1" /> En attente
-          </Badge>
-        )
-      case "approved":
-        return (
-          <Badge bg="success" className="mac-badge">
-            <Check2Circle className="me-1" /> Approuvé
-          </Badge>
-        )
-      case "rejected":
-        return (
-          <Badge bg="danger" className="mac-badge">
-            <XCircle className="me-1" /> Rejeté
-          </Badge>
-        )
-      default:
-        return (
-          <Badge bg="secondary" className="mac-badge">
-            Inconnu
-          </Badge>
-        )
+  const testNotification = () => {
+    const notification = {
+      id: Date.now(),
+      title: "Test de notification",
+      message: "Ceci est une notification de test du système",
+      type: "info",
+      createdAt: new Date().toISOString(),
+      read: false,
     }
+    showNotification(notification)
   }
 
   return (
-    <MainLayout>
-      <div className="animate__animated animate__fadeIn">
-        <PageTitle
-          title={`Bienvenue, ${user?.firstName} ${user?.lastName}`}
-          subtitle="Voici votre aperçu du système d'estampillage"
-          icon={<Speedometer2 className="me-2" size={24} />}
-        />
-
-        <Row className="g-3 mb-4">
-          <Col md={6} xl={3}>
-            <Card className="shadow-sm border-0 glass-card dashboard-card scale-in">
-              <Card.Body className="p-4">
-                <div className="d-flex justify-content-between align-items-center">
-                  <div>
-                    <h6 className="text-muted mb-0">Revenue Total</h6>
-                    <h3 className="mb-0">{totalRevenue.toLocaleString()} FC</h3>
-                  </div>
-                  <div className="rounded-circle bg-primary bg-opacity-10 p-3">
-                    <CashCoin size={24} className="text-primary" />
-                  </div>
-                </div>
-                <div className="mt-3 text-muted">
-                  <ArrowUpRight className="me-1" /> +10.5% depuis le mois dernier
-                </div>
-                <div className="icon-bg">
-                  <CashCoin />
-                </div>
-              </Card.Body>
-            </Card>
-          </Col>
-
-          <Col md={6} xl={3}>
-            <Card className="shadow-sm border-0 glass-card dashboard-card scale-in">
-              <Card.Body className="p-4">
-                <div className="d-flex justify-content-between align-items-center">
-                  <div>
-                    <h6 className="text-muted mb-0">Déclarations</h6>
-                    <h3 className="mb-0">{declarations.length}</h3>
-                  </div>
-                  <div className="rounded-circle bg-success bg-opacity-10 p-3">
-                    <FileEarmarkText size={24} className="text-success" />
-                  </div>
-                </div>
-                <div className="mt-3 small">
-                  <span className="text-success me-2">
-                    <Check2Circle /> {approvedDeclarations} approuvées
-                  </span>
-                  <span className="text-warning me-2">
-                    <Clock /> {pendingDeclarations} en attente
-                  </span>
-                  <span className="text-danger">
-                    <XCircle /> {rejectedDeclarations} rejetées
-                  </span>
-                </div>
-                <div className="icon-bg">
-                  <FileEarmarkText />
-                </div>
-              </Card.Body>
-            </Card>
-          </Col>
-
-          <Col md={6} xl={3}>
-            <Card className="shadow-sm border-0 glass-card dashboard-card scale-in">
-              <Card.Body className="p-4">
-                <div className="d-flex justify-content-between align-items-center">
-                  <div>
-                    <h6 className="text-muted mb-0">OPG Actifs</h6>
-                    <h3 className="mb-0">24</h3>
-                  </div>
-                  <div className="rounded-circle bg-info bg-opacity-10 p-3">
-                    <PersonBadge size={24} className="text-info" />
-                  </div>
-                </div>
-                <div className="mt-3 text-muted">3 nouveaux OPG ce mois-ci</div>
-                <div className="icon-bg">
-                  <PersonBadge />
-                </div>
-              </Card.Body>
-            </Card>
-          </Col>
-
-          <Col md={6} xl={3}>
-            <Card className="shadow-sm border-0 glass-card dashboard-card scale-in">
-              <Card.Body className="p-4">
-                <div className="d-flex justify-content-between align-items-center">
-                  <div>
-                    <h6 className="text-muted mb-0">Documents Archivés</h6>
-                    <h3 className="mb-0">152</h3>
-                  </div>
-                  <div className="rounded-circle bg-warning bg-opacity-10 p-3">
-                    <Archive size={24} className="text-warning" />
-                  </div>
-                </div>
-                <div className="mt-3 text-muted">18 nouveaux documents archivés cette semaine</div>
-                <div className="icon-bg">
-                  <Archive />
-                </div>
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
-
-        {notifications.filter((n) => !n.read).length > 0 && (
-          <Alert
-            variant="info"
-            className="d-flex align-items-center mb-4 animate__animated animate__fadeIn glass-alert"
-          >
-            <ExclamationTriangle className="me-2" size={20} />
-            <div className="flex-grow-1">
-              Vous avez {notifications.filter((n) => !n.read).length} notification
-              {notifications.filter((n) => !n.read).length > 1 ? "s" : ""} non lue
-              {notifications.filter((n) => !n.read).length > 1 ? "s" : ""}
-            </div>
-          </Alert>
-        )}
-
-        <Row className="g-4 mb-4">
-          <Col lg={8}>
-            <Card className="shadow-sm border-0 glass-card slide-in">
-              <Card.Header className="bg-transparent border-0 py-3">
-                <h5 className="mb-0">Tendance des Revenus</h5>
-              </Card.Header>
-              <Card.Body>
-                <Chart type="line" data={revenueStats} options={revenueChartOptions} height={350} />
-              </Card.Body>
-            </Card>
-          </Col>
-
-          <Col lg={4}>
-            <Card className="shadow-sm border-0 glass-card slide-in">
-              <Card.Header className="bg-transparent border-0 py-3">
-                <h5 className="mb-0">Distribution des Revenus</h5>
-              </Card.Header>
-              <Card.Body>
-                <Chart type="doughnut" data={distributionStats} options={distributionChartOptions} />
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
-
-        <Row className="g-4">
-          <Col lg={6}>
-            <Card className="shadow-sm border-0 glass-card slide-in">
-              <Card.Header className="bg-transparent border-0 py-3 d-flex justify-content-between align-items-center">
-                <h5 className="mb-0">Déclarations Récentes</h5>
-                <Link to="/declaration" className="btn btn-sm btn-outline-primary hover-lift mac-btn">
-                  Voir tout
-                </Link>
-              </Card.Header>
-              <Card.Body className="p-0">
-                <Table hover responsive className="mac-table">
-                  <thead className="bg-light">
-                    <tr>
-                      <th>ID</th>
-                      <th>Assujetti</th>
-                      <th>Montant</th>
-                      <th>Status</th>
-                      <th>Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {declarations.slice(0, 5).map((declaration) => (
-                      <tr key={declaration.id}>
-                        <td>#{declaration.id}</td>
-                        <td>{declaration.subjectName}</td>
-                        <td>{declaration.amountDue.toLocaleString()} FC</td>
-                        <td>{getStatusBadge(declaration.status)}</td>
-                        <td>{new Date(declaration.createdAt).toLocaleDateString()}</td>
-                      </tr>
-                    ))}
-                    {declarations.length === 0 && (
-                      <tr>
-                        <td colSpan={5} className="text-center py-3">
-                          Aucune déclaration trouvée
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </Table>
-              </Card.Body>
-            </Card>
-          </Col>
-
-          <Col lg={6}>
-            <Card className="shadow-sm border-0 glass-card slide-in">
-              <Card.Header className="bg-transparent border-0 py-3 d-flex justify-content-between align-items-center">
-                <h5 className="mb-0">Notifications Récentes</h5>
-                <Button variant="outline-primary" size="sm" className="hover-lift mac-btn">
-                  Voir tout
-                </Button>
-              </Card.Header>
-              <Card.Body className="p-0">
-                <div className="list-group list-group-flush">
-                  {notifications.slice(0, 5).map((notification) => (
-                    <div
-                      key={notification.id}
-                      className={`list-group-item list-group-item-action border-0 ${
-                        notification.read ? "bg-light bg-opacity-50" : ""
-                      }`}
-                    >
-                      <div className="d-flex w-100 justify-content-between">
-                        <h6 className="mb-1">{notification.title}</h6>
-                        <small>{new Date(notification.createdAt).toLocaleDateString()}</small>
-                      </div>
-                      <p className="mb-1">{notification.message}</p>
-                      <small className={`${notification.read ? "text-muted" : "text-primary"}`}>
-                        {notification.read ? "Lu" : "Non lu"}
-                      </small>
-                    </div>
-                  ))}
-                  {notifications.length === 0 && (
-                    <div className="list-group-item text-center py-3 border-0">Aucune notification</div>
-                  )}
-                </div>
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
+    <div className="fade-in">
+      {/* Page Header */}
+      <div className="page-header">
+        <div className="page-title-section">
+          <h1>
+            <BarChart size={32} style={{ marginRight: "0.5rem", color: "#00bcd4" }} />
+            Aperçu du Système d'Estampillage
+          </h1>
+        </div>
+        <div className="page-actions">
+          <div className="live-indicator">
+            <div className="live-dot"></div>
+            LIVE
+          </div>
+          <button className="header-action" title="Actualiser" onClick={() => dispatch(fetchDeclarations())}>
+            <ArrowRepeat size={18} />
+          </button>
+        </div>
       </div>
-    </MainLayout>
+
+      {/* Metrics Grid - Statistiques d'estampillage */}
+      <div className="metrics-grid">
+        {stats.map((stat, index) => {
+          const IconComponent = stat.icon
+          return (
+            <div key={index} className="metric-card">
+              <div className={`metric-icon ${stat.type}`}>
+                <IconComponent size={24} />
+              </div>
+              <div className="metric-value">{stat.value}</div>
+              <div className="metric-label">{stat.title}</div>
+              <div className="metric-subtitle">{stat.subtitle}</div>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Charts Section - Données d'estampillage */}
+      <div className="chart-container">
+        <div className="chart-header">
+          <div className="chart-title">Évolution des Revenus</div>
+          <div className="chart-tabs">
+            <button className="chart-tab active">Revenus</button>
+            <button className="chart-tab">Déclarations</button>
+            <button className="chart-tab">OPGs</button>
+          </div>
+          <div className="chart-legend">
+            <div className="legend-item">
+              <div className="legend-dot cpu"></div>
+              Revenus
+            </div>
+            <div className="legend-item">
+              <div className="legend-dot memory"></div>
+              Déclarations
+            </div>
+            <div className="legend-item">
+              <div className="legend-dot network"></div>
+              OPGs
+            </div>
+          </div>
+        </div>
+
+        {/* Graphique simulé pour les données d'estampillage */}
+        <div className="performance-chart">
+          <div className="chart-y-axis">
+            <span>5M FC</span>
+            <span>4M FC</span>
+            <span>3M FC</span>
+            <span>2M FC</span>
+            <span>1M FC</span>
+          </div>
+          <div className="chart-area">
+            <div className="chart-bars">
+              {/* Simulation des revenus mensuels */}
+              {[
+                { revenus: 60, declarations: 45, opgs: 80 },
+                { revenus: 75, declarations: 55, opgs: 70 },
+                { revenus: 45, declarations: 65, opgs: 85 },
+                { revenus: 85, declarations: 40, opgs: 75 },
+                { revenus: 70, declarations: 70, opgs: 90 },
+                { revenus: 90, declarations: 50, opgs: 65 },
+                { revenus: 65, declarations: 80, opgs: 95 },
+                { revenus: 95, declarations: 35, opgs: 70 },
+                { revenus: 80, declarations: 60, opgs: 85 },
+                { revenus: 55, declarations: 75, opgs: 80 },
+                { revenus: 75, declarations: 45, opgs: 75 },
+                { revenus: 85, declarations: 85, opgs: 90 },
+              ].map((data, i) => (
+                <div key={i} className="chart-bar-group">
+                  <div
+                    className="chart-bar cpu"
+                    style={{
+                      height: `${data.revenus}%`,
+                      animationDelay: `${i * 0.1}s`,
+                    }}
+                    title={`Revenus: ${data.revenus}%`}
+                  ></div>
+                  <div
+                    className="chart-bar memory"
+                    style={{
+                      height: `${data.declarations}%`,
+                      animationDelay: `${i * 0.1 + 0.05}s`,
+                    }}
+                    title={`Déclarations: ${data.declarations}%`}
+                  ></div>
+                  <div
+                    className="chart-bar network"
+                    style={{
+                      height: `${data.opgs}%`,
+                      animationDelay: `${i * 0.1 + 0.1}s`,
+                    }}
+                    title={`OPGs: ${data.opgs}%`}
+                  ></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Section des activités récentes */}
+      <div className="chart-container">
+        <div className="chart-header">
+          <div className="chart-title">Activité Récente</div>
+        </div>
+        <div style={{ padding: "1rem 0" }}>
+          <div className="activity-list">
+            <div className="activity-item">
+              <div className="activity-icon cpu">
+                <FileEarmarkText size={16} />
+              </div>
+              <div className="activity-content">
+                <div className="activity-title">Nouvelle déclaration #D-2023-001</div>
+                <div className="activity-subtitle">Il y a 2 heures</div>
+              </div>
+              <div className="activity-status pending">En attente</div>
+            </div>
+            <div className="activity-item">
+              <div className="activity-icon memory">
+                <PersonBadge size={16} />
+              </div>
+              <div className="activity-content">
+                <div className="activity-title">Nouvel OPG créé: OPG Nord-Est</div>
+                <div className="activity-subtitle">Il y a 4 heures</div>
+              </div>
+              <div className="activity-status success">Actif</div>
+            </div>
+            <div className="activity-item">
+              <div className="activity-icon network">
+                <Archive size={16} />
+              </div>
+              <div className="activity-content">
+                <div className="activity-title">Document archivé #DOC-2023-156</div>
+                <div className="activity-subtitle">Il y a 6 heures</div>
+              </div>
+              <div className="activity-status success">Archivé</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }
 

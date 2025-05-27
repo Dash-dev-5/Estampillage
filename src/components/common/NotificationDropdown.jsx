@@ -1,14 +1,25 @@
 "use client"
 
-import { Badge, ListGroup } from "react-bootstrap"
-import { useDispatch } from "react-redux"
-import { markNotificationRead, markAllNotificationsRead } from "../../redux/actions/notificationActions"
-import { Bell, EnvelopeOpen, CheckAll } from "react-bootstrap-icons"
+import { useState, useEffect } from "react"
+import { useSelector, useDispatch } from "react-redux"
+import { Dropdown, Badge, ListGroup } from "react-bootstrap"
+import { Bell, BellFill, Check2All } from "react-bootstrap-icons"
+import {
+  fetchNotifications,
+  markNotificationRead,
+  markAllNotificationsRead,
+} from "../../redux/actions/notificationActions"
 
-const NotificationDropdown = ({ notifications, onClose }) => {
+const NotificationDropdown = () => {
   const dispatch = useDispatch()
+  const { notifications, unreadCount } = useSelector((state) => state.notification)
+  const [show, setShow] = useState(false)
 
-  const handleNotificationClick = (id) => {
+  useEffect(() => {
+    dispatch(fetchNotifications())
+  }, [dispatch])
+
+  const handleMarkAsRead = (id) => {
     dispatch(markNotificationRead(id))
   }
 
@@ -16,65 +27,93 @@ const NotificationDropdown = ({ notifications, onClose }) => {
     dispatch(markAllNotificationsRead())
   }
 
+  const getNotificationIcon = (type) => {
+    switch (type) {
+      case "declaration":
+        return "📄"
+      case "perception":
+        return "💰"
+      case "user":
+        return "👤"
+      case "system":
+        return "⚙️"
+      case "fraud":
+        return "⚠️"
+      default:
+        return "📢"
+    }
+  }
+
+  const formatTime = (timestamp) => {
+    const now = new Date()
+    const time = new Date(timestamp)
+    const diff = now - time
+    const minutes = Math.floor(diff / 60000)
+    const hours = Math.floor(diff / 3600000)
+    const days = Math.floor(diff / 86400000)
+
+    if (minutes < 1) return "À l'instant"
+    if (minutes < 60) return `Il y a ${minutes}m`
+    if (hours < 24) return `Il y a ${hours}h`
+    return `Il y a ${days}j`
+  }
+
   return (
-    <div
-      className="bg-white shadow-lg rounded border"
-      style={{
-        position: "absolute",
-        width: "280px",
-        maxHeight: "350px",
-        overflowY: "auto",
-        bottom: "60px",
-        left: "0",
-        zIndex: 1000,
-      }}
-    >
-      <div className="p-3 border-bottom bg-light d-flex justify-content-between align-items-center">
-        <h6 className="m-0 fw-bold d-flex align-items-center">
-          <Bell className="me-2" /> Notifications
-        </h6>
-        <button className="btn btn-sm btn-outline-primary" onClick={handleMarkAllAsRead} title="Marquer tout comme lu">
-          <CheckAll />
-        </button>
-      </div>
+    <Dropdown show={show} onToggle={setShow} align="end">
+      <Dropdown.Toggle as="button" className="header-action notification-toggle" id="notification-dropdown">
+        {unreadCount > 0 ? <BellFill size={18} /> : <Bell size={18} />}
+        {unreadCount > 0 && <Badge className="notification-badge">{unreadCount > 99 ? "99+" : unreadCount}</Badge>}
+      </Dropdown.Toggle>
 
-      {notifications.length === 0 ? (
-        <div className="p-3 text-center text-muted">
-          <p className="mb-0">Aucune notification</p>
+      <Dropdown.Menu className="notification-dropdown-menu">
+        <div className="notification-header">
+          <h6 className="mb-0">Notifications</h6>
+          {unreadCount > 0 && (
+            <button className="btn-link" onClick={handleMarkAllAsRead}>
+              <Check2All size={16} />
+              Tout marquer comme lu
+            </button>
+          )}
         </div>
-      ) : (
-        <ListGroup variant="flush">
-          {notifications.map((notification) => (
-            <ListGroup.Item
-              key={notification.id}
-              className={`py-2 px-3 ${!notification.read ? "bg-light" : ""}`}
-              action
-              onClick={() => handleNotificationClick(notification.id)}
-            >
-              <div className="d-flex align-items-start">
-                <div className="text-primary me-2 mt-1">
-                  <EnvelopeOpen size={18} />
-                </div>
-                <div className="flex-grow-1">
-                  <p className="mb-1 fw-bold">{notification.title}</p>
-                  <p className="mb-1 small">{notification.message}</p>
-                  <div className="d-flex justify-content-between align-items-center">
-                    <small className="text-muted">{new Date(notification.createdAt).toLocaleDateString()}</small>
-                    {!notification.read && <Badge bg="primary">Nouveau</Badge>}
-                  </div>
-                </div>
-              </div>
-            </ListGroup.Item>
-          ))}
-        </ListGroup>
-      )}
 
-      <div className="p-2 border-top text-center">
-        <button className="btn btn-sm btn-link" onClick={onClose}>
-          Fermer
-        </button>
-      </div>
-    </div>
+        <div className="notification-list">
+          {notifications.length === 0 ? (
+            <div className="empty-notifications">
+              <Bell size={32} className="text-muted" />
+              <p>Aucune notification</p>
+            </div>
+          ) : (
+            <ListGroup variant="flush">
+              {notifications.slice(0, 10).map((notification) => (
+                <ListGroup.Item
+                  key={notification.id}
+                  className={`notification-item ${!notification.read ? "unread" : ""}`}
+                  onClick={() => !notification.read && handleMarkAsRead(notification.id)}
+                >
+                  <div className="notification-content">
+                    <div className="notification-icon">{getNotificationIcon(notification.type)}</div>
+                    <div className="notification-body">
+                      <div className="notification-title">{notification.title}</div>
+                      <div className="notification-message">{notification.message}</div>
+                      <div className="notification-time">
+                        {formatTime(notification.createdAt || notification.timestamp)}
+                      </div>
+                    </div>
+                    {!notification.read && <div className="unread-indicator"></div>}
+                  </div>
+                </ListGroup.Item>
+              ))}
+            </ListGroup>
+          )}
+        </div>
+
+        {notifications.length > 10 && (
+          <div className="notification-footer">
+            <button className="btn-link">Voir toutes les notifications</button>
+          </div>
+        )}
+      </Dropdown.Menu>
+    </Dropdown>
   )
 }
 
