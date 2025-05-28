@@ -12,18 +12,32 @@ import auditReducer from "./reducers/auditReducer"
 import archiveReducer from "./reducers/archiveReducer"
 import notificationReducer from "./reducers/notificationReducer"
 import uiReducer from "./reducers/uiReducer"
+// Ajouter cet import
+import settingsReducer from "./reducers/settingsReducer"
+import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from "redux-persist"
+import storage from "redux-persist/lib/storage"
+import personnelReducer from "./reducers/personnelReducer"
+import hrReducer from "./reducers/hrReducer"
 
+const persistConfig = {
+  key: "root",
+  storage,
+  version: 1,
+}
 const rootReducer = combineReducers({
   auth: authReducer,
   declaration: declarationReducer,
   perception: perceptionReducer,
+  notification: notificationReducer,
+  ui: uiReducer,
+  audit: auditReducer,
+  archive: archiveReducer,
   opg: opgReducer,
   user: userReducer,
   subject: subjectReducer,
-  audit: auditReducer,
-  archive: archiveReducer,
-  notification: notificationReducer,
-  ui: uiReducer,
+  personnel: personnelReducer,
+  settings: settingsReducer,
+  hr: hrReducer,
 })
 
 const store = configureStore({

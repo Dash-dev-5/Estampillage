@@ -5,15 +5,18 @@ import { useDispatch, useSelector } from "react-redux"
 import { CashCoin, FileEarmarkText, PersonBadge, Archive, BarChart, ArrowRepeat } from "react-bootstrap-icons"
 import { fetchDeclarations } from "../redux/actions/declarationActions"
 import { useNotifications } from "../hooks/useNotifications"
-
+import { Row, Col } from "react-bootstrap"
+import { fetchSettings } from "../redux/actions/settingsActions"
 const Dashboard = () => {
   const dispatch = useDispatch()
   const { user } = useSelector((state) => state.auth)
   const { declarations } = useSelector((state) => state.declaration)
+  const { settings } = useSelector((state) => state.settings)
   const { showNotification } = useNotifications()
 
   useEffect(() => {
     dispatch(fetchDeclarations())
+    dispatch(fetchSettings())
   }, [dispatch])
 
   // Statistiques réelles de l'estampillage
@@ -48,6 +51,27 @@ const Dashboard = () => {
     },
   ]
 
+  const totalRevenue = 2450000;
+
+const repartition = [
+  {
+    key: "dgrkc",
+    label: "DGRKC",
+    type: "cpu",
+  },
+  {
+    key: "estampi",
+    label: "ESTAMPI",
+    type: "memory",
+  },
+  {
+    key: "gouvernement",
+    label: "Gouvernement",
+    type: "network",
+  },
+];
+
+
   const testNotification = () => {
     const notification = {
       id: Date.now(),
@@ -80,7 +104,31 @@ const Dashboard = () => {
           </button>
         </div>
       </div>
+      <Row className="g-4 mb-4">
+  {repartition.map((item, index) => {
+    const percentage = settings?.revenueDistribution?.[item.key] || 0;
+    const amount = (totalRevenue * percentage) / 100;
 
+    return (
+      <Col md={4} key={index}>
+        <div className="metric-card">
+          <div className={`metric-icon ${item.type}`}>
+            <CashCoin size={24} />
+          </div>
+          <div className="metric-value">
+            {new Intl.NumberFormat("fr-CD", {
+              style: "currency",
+              currency: "CDF",
+              minimumFractionDigits: 0,
+            }).format(amount)}
+          </div>
+          <div className="metric-label">{item.label}</div>
+          <div className="metric-subtitle">{percentage}% du total</div>
+        </div>
+      </Col>
+    );
+  })}
+</Row>
       {/* Metrics Grid - Statistiques d'estampillage */}
       <div className="metrics-grid">
         {stats.map((stat, index) => {
@@ -97,6 +145,7 @@ const Dashboard = () => {
           )
         })}
       </div>
+
 
       {/* Charts Section - Données d'estampillage */}
       <div className="chart-container">

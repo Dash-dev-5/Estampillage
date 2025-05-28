@@ -44,47 +44,7 @@ const MainLayout = ({ children }) => {
       <main className="main-content">
         {/* Header */}
         <Header />
-        {/* <header className="app-header">
-          <div className="header-left">
-            <button className="header-action d-md-none" onClick={() => setSidebarOpen(!sidebarOpen)} title="Menu">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-            </button>
-
-            <div className="app-logo">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-              </svg>
-              ESTAMPILLAGE
-            </div>
-
-            <div className="header-search">
-              <Search className="search-icon" size={16} />
-              <input type="search" placeholder="Rechercher dans le système..." className="search-input" />
-            </div>
-          </div>
-
-          <div className="header-right">
-            <button className="header-action" title="Notifications">
-              <Bell size={18} />
-            </button>
-
-            <ThemeToggle />
-
-            <button className="header-action" title="Paramètres">
-              <Gear size={18} />
-            </button>
-
-            <div className="user-profile">
-              <div className="user-avatar">{user?.username?.charAt(0).toUpperCase() || "A"}</div>
-              <div className="user-info">
-                <div className="user-name">{user?.username || "admin"}</div>
-                <div className="user-role">Administrateur</div>
-              </div>
-            </div>
-          </div>
-        </header> */}
+       
 
         {/* Contenu principal */}
         <div className="content-wrapper">

@@ -15,6 +15,9 @@ import {
   BoxArrowRight,
   FileEarmarkRuled,
   Activity,
+  Gear, // Added import
+  PeopleFill,
+  // People
 } from "react-bootstrap-icons"
 import { isAdmin, isDG, canCreateDeclaration, canCreatePerception, canManageValuePrints } from "../../utils/permissions"
 
@@ -107,9 +110,35 @@ const SideNav = () => {
 
         {(isAdmin(user) || isDG(user)) && (
           <div className="nav-item">
+            <Link
+              to="/personnel-management"
+              className={`nav-link ${isActive("/personnel-management") ? "active" : ""}`}
+            >
+              <People size={18} />
+              Personnel
+            </Link>
+          </div>
+        )}
+
+        <div className="nav-item">
+          <Link to="/settings" className={`nav-link ${isActive("/settings") ? "active" : ""}`}>
+            <Gear size={18} />
+            Paramètres
+          </Link>
+        </div>
+        {(isAdmin(user) || isDG(user)) && (
+          <div className="nav-item">
             <Link to="/audit-log" className={`nav-link ${isActive("/audit-log") ? "active" : ""}`}>
               <ClockHistory size={18} />
               Journal d'audit
+            </Link>
+          </div>
+        )}
+        {(isAdmin(user) || isDG(user)) && (
+          <div className="nav-item">
+            <Link to="/human-resources" className={`nav-link ${isActive("/human-resources") ? "active" : ""}`}>
+              <PeopleFill size={18} />
+               HR & RH
             </Link>
           </div>
         )}
@@ -120,7 +149,6 @@ const SideNav = () => {
             Archives
           </Link>
         </div>
-
         <div className="nav-item" style={{ marginTop: "auto", paddingTop: "2rem" }}>
           <button
             onClick={handleLogout}

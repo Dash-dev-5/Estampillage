@@ -2,9 +2,11 @@ import { Search, Bell, Gear } from "react-bootstrap-icons"
 import { useSelector } from "react-redux"
 import ThemeToggle from "./ThemeToggle"
 import NotificationDropdown from "./NotificationDropdown"
+import { useNavigate } from "react-router-dom"
 
 const Header = () => {
   const { user } = useSelector((state) => state.auth)
+  const navigate = useNavigate()
 
   return (
     <header className="app-header">
@@ -33,7 +35,7 @@ const Header = () => {
 
         <ThemeToggle />
 
-        <button className="header-action" title="Paramètres">
+        <button className="header-action" title="Paramètres" onClick={() => navigate("/settings")}>
           <Gear size={18} />
         </button>
 

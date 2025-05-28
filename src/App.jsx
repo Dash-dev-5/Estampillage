@@ -16,7 +16,9 @@ import AuditLog from "./pages/AuditLog"
 import Archives from "./pages/Archives"
 import NotFound from "./pages/NotFound"
 import ValuePrintManagement from "./pages/ValuePrintManagement"
-
+import Settings from "./pages/Settings"
+import PersonnelManagement from "./pages/PersonnelManagement"
+// import HumanResources from "./pages/HumanResources"
 // Components
 import ProtectedRoute from "./components/common/ProtectedRoute"
 import MainLayout from "./components/common/MainLayout"
@@ -25,8 +27,17 @@ import MainLayout from "./components/common/MainLayout"
 import "bootstrap/dist/css/bootstrap.min.css"
 import "react-toastify/dist/ReactToastify.css"
 import "./assets/css/main.css"
-
+import HumanResources from "./pages/HumanResources"
+// import { useAuth } from "./AuthContext"
+import { Navigate } from "react-router-dom"
 function App() {
+  // const { isLoggedIn } = useAuth()
+  // const ProtectedRoute = ({ children }) => {
+  //   if (!isLoggedIn) {
+  //     return <Navigate to="/login" />
+  //   }
+  //   return children
+  // }
   return (
     <Provider store={store}>
       <ThemeProvider>
@@ -143,9 +154,48 @@ function App() {
             }
           />
 
+          <Route
+            path="/human-resources"
+            element={
+              <ProtectedRoute>
+                <MainLayout>
+                  <HumanResources />
+                </MainLayout>
+              </ProtectedRoute>
+            }
+          />
+
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <Settings />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/personnel-management"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <PersonnelManagement />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+         <Route
+          path="/hr"
+          element={
+            <ProtectedRoute requiredPermission="hr_access">
+              <HumanResources />
+            </ProtectedRoute>
+          }
+        />
           <Route path="*" element={<NotFound />} />
         </Routes>
-
+      
         <ToastContainer
           position="top-right"
           autoClose={5000}
